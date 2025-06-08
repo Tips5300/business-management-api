@@ -1,0 +1,2550 @@
+
+// ------------------------------------
+// Entities
+// ------------------------------------
+
+// File: src/src/entities/Account.ts
+
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToMany,
+  CreateDateColumn,
+  UpdateDateColumn,
+  DeleteDateColumn,
+} from 'typeorm';
+import { JournalEntry } from './JournalEntry';
+
+export enum AccountType {
+  ASSET = 'Asset',
+  LIABILITY = 'Liability',
+  EQUITY = 'Equity',
+  REVENUE = 'Revenue',
+  EXPENSE = 'Expense',
+}
+
+@Entity()
+export class Account {
+  @PrimaryGeneratedColumn('uuid')
+  id!: string;
+
+  @Column({ unique: true })
+  name!: string;
+
+  @Column({ nullable: true })
+  description?: string;
+
+  @Column({ type: 'enum', enum: AccountType })
+  accountType!: AccountType;
+
+  @Column({ type: 'decimal', default: 0 })
+  balance!: number;
+
+  @OneToMany(() => JournalEntry, (je) => je.debitAccount)
+  debitJournalEntries!: JournalEntry[];
+
+  @OneToMany(() => JournalEntry, (je) => je.creditAccount)
+  creditJournalEntries!: JournalEntry[];
+
+  @Column({ nullable: true })
+  createdBy?: number;
+
+  @Column({ nullable: true })
+  updatedBy?: number;
+
+  @CreateDateColumn()
+  createdAt!: Date;
+
+  @UpdateDateColumn()
+  updatedAt!: Date;
+
+  @DeleteDateColumn()
+  deletedAt?: Date;
+}
+
+// File: src/src/entities/Attendance.ts
+
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  DeleteDateColumn,
+} from 'typeorm';
+import { Employee } from './Employee';
+
+@Entity()
+export class Attendance {
+  @PrimaryGeneratedColumn()
+  id!: number;
+
+  @ManyToOne(() => Employee, (emp) => emp.attendances)
+  employee!: Employee;
+
+  @Column({ type: 'date' })
+  date!: string;
+
+  @Column({ type: 'time', nullable: true })
+  checkIn?: string;
+
+  @Column({ type: 'time', nullable: true })
+  checkOut?: string;
+
+  @Column({ nullable: true })
+  createdBy?: number;
+
+  @Column({ nullable: true })
+  updatedBy?: number;
+
+  @CreateDateColumn()
+  createdAt!: Date;
+
+  @UpdateDateColumn()
+  updatedAt!: Date;
+
+  @DeleteDateColumn()
+  deletedAt?: Date;
+}
+
+// File: src/src/entities/Badge.ts
+
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  DeleteDateColumn,
+} from 'typeorm';
+
+@Entity()
+export class Badge {
+  @PrimaryGeneratedColumn()
+  id!: number;
+
+  @Column({ unique: true })
+  code!: string;
+
+  @Column()
+  level!: number;
+
+  @Column({ type: 'text', nullable: true })
+  description?: string;
+
+  @Column({ nullable: true })
+  createdBy?: number;
+
+  @Column({ nullable: true })
+  updatedBy?: number;
+
+  @CreateDateColumn()
+  createdAt!: Date;
+
+  @UpdateDateColumn()
+  updatedAt!: Date;
+
+  @DeleteDateColumn()
+  deletedAt?: Date;
+}
+
+// File: src/src/entities/Batch.ts
+
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  CreateDateColumn,
+  UpdateDateColumn,
+  DeleteDateColumn,
+} from 'typeorm';
+import { Product } from './Product';
+
+@Entity()
+export class Batch {
+  @PrimaryGeneratedColumn('uuid')
+  id!: string;
+
+  @ManyToOne(() => Product, (prod) => prod.batches)
+  product!: Product;
+
+  @Column({ type: 'date' })
+  manufactureDate!: string;
+
+  @Column({ type: 'date' })
+  expiryDate!: string;
+
+  @Column({ type: 'int' })
+  quantity!: number;
+
+  @Column({ nullable: true })
+  createdBy?: number;
+
+  @Column({ nullable: true })
+  updatedBy?: number;
+
+  @CreateDateColumn()
+  createdAt!: Date;
+
+  @UpdateDateColumn()
+  updatedAt!: Date;
+
+  @DeleteDateColumn()
+  deletedAt?: Date;
+}
+
+// File: src/src/entities/Category.ts
+
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToMany,
+  CreateDateColumn,
+  UpdateDateColumn,
+  DeleteDateColumn,
+} from 'typeorm';
+import { SubCategory } from './SubCategory';
+
+@Entity()
+export class Category {
+  @PrimaryGeneratedColumn('uuid')
+  id!: string;
+
+  @Column({ unique: true })
+  name!: string;
+
+  @Column({ type: 'text', nullable: true })
+  description?: string;
+
+  @OneToMany(() => SubCategory, (sub) => sub.category)
+  subcategories!: SubCategory[];
+
+  @Column({ nullable: true })
+  createdBy?: number;
+
+  @Column({ nullable: true })
+  updatedBy?: number;
+
+  @CreateDateColumn()
+  createdAt!: Date;
+
+  @UpdateDateColumn()
+  updatedAt!: Date;
+
+  @DeleteDateColumn()
+  deletedAt?: Date;
+}
+
+// File: src/src/entities/Customer.ts
+
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToMany,
+  CreateDateColumn,
+  UpdateDateColumn,
+  DeleteDateColumn,
+} from 'typeorm';
+import { Sale } from './Sale';
+
+@Entity()
+export class Customer {
+  @PrimaryGeneratedColumn('uuid')
+  id!: string;
+
+  @Column()
+  name!: string;
+
+  @Column({ unique: true })
+  phone!: string;
+
+  @Column({ type: 'text', nullable: true })
+  address?: string;
+
+  @OneToMany(() => Sale, (sale) => sale.customer)
+  sales!: Sale[];
+
+  @Column({ nullable: true })
+  createdBy?: number;
+
+  @Column({ nullable: true })
+  updatedBy?: number;
+
+  @CreateDateColumn()
+  createdAt!: Date;
+
+  @UpdateDateColumn()
+  updatedAt!: Date;
+
+  @DeleteDateColumn()
+  deletedAt?: Date;
+}
+
+// File: src/src/entities/Department.ts
+
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToMany,
+  CreateDateColumn,
+  UpdateDateColumn,
+  DeleteDateColumn,
+} from 'typeorm';
+import { Employee } from './Employee';
+
+@Entity()
+export class Department {
+  @PrimaryGeneratedColumn('uuid')
+  id!: string;
+
+  @Column()
+  name!: string;
+
+  @OneToMany(() => Employee, (emp) => emp.department)
+  employees!: Employee[];
+
+  @Column({ nullable: true })
+  createdBy?: number;
+
+  @Column({ nullable: true })
+  updatedBy?: number;
+
+  @CreateDateColumn()
+  createdAt!: Date;
+
+  @UpdateDateColumn()
+  updatedAt!: Date;
+
+  @DeleteDateColumn()
+  deletedAt?: Date;
+}
+
+// File: src/src/entities/Employee.ts
+
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  OneToMany,
+  CreateDateColumn,
+  UpdateDateColumn,
+  DeleteDateColumn,
+} from 'typeorm';
+import { Department } from './Department';
+import { Store } from './Store';
+import { Attendance } from './Attendance';
+import { LeaveRequest } from './LeaveRequest';
+import { Expense } from './Expense';
+
+@Entity()
+export class Employee {
+  @PrimaryGeneratedColumn('uuid')
+  id!: string;
+
+  @Column()
+  name!: string;
+
+  @Column({ unique: true })
+  email!: string;
+
+  @ManyToOne(() => Department, (dept) => dept.employees)
+  department!: Department;
+
+  @ManyToOne(() => Store, (store) => store.employees)
+  store!: Store;
+
+  @OneToMany(() => Attendance, (att) => att.employee)
+  attendances!: Attendance[];
+
+  @OneToMany(() => LeaveRequest, (lr) => lr.employee)
+  leaveRequests!: LeaveRequest[];
+
+  @OneToMany(() => Expense, (exp) => exp.employee)
+  expenses!: Expense[];
+
+  @Column({ nullable: true })
+  createdBy?: number;
+
+  @Column({ nullable: true })
+  updatedBy?: number;
+
+  @CreateDateColumn()
+  createdAt!: Date;
+
+  @UpdateDateColumn()
+  updatedAt!: Date;
+
+  @DeleteDateColumn()
+  deletedAt?: Date;
+}
+
+// File: src/src/entities/Expense.ts
+
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  CreateDateColumn,
+  UpdateDateColumn,
+  DeleteDateColumn,
+} from 'typeorm';
+import { Account } from './Account';
+import { Employee } from './Employee';
+
+@Entity()
+export class Expense {
+  @PrimaryGeneratedColumn('uuid')
+  id!: string;
+
+  @Column({ type: 'decimal' })
+  amount!: number;
+
+  @Column({ type: 'text' })
+  description!: string;
+
+  @ManyToOne(() => Account, (acct) => acct.debitJournalEntries)
+  account!: Account;
+
+  @ManyToOne(() => Employee, (emp) => emp.expenses)
+  employee!: Employee;
+
+  @Column({ nullable: true })
+  createdBy?: number;
+
+  @Column({ nullable: true })
+  updatedBy?: number;
+
+  @CreateDateColumn()
+  createdAt!: Date;
+
+  @UpdateDateColumn()
+  updatedAt!: Date;
+
+  @DeleteDateColumn()
+  deletedAt?: Date;
+}
+
+// File: src/src/entities/Incharge.ts
+
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToMany,
+  CreateDateColumn,
+  UpdateDateColumn,
+  DeleteDateColumn,
+} from 'typeorm';
+import { Store } from './Store';
+
+@Entity()
+export class Incharge {
+  @PrimaryGeneratedColumn('uuid')
+  id!: string;
+
+  @Column()
+  name!: string;
+
+  @Column({ unique: true })
+  email!: string;
+
+  @OneToMany(() => Store, (store) => store.incharge)
+  stores!: Store[];
+
+  @Column({ nullable: true })
+  createdBy?: number;
+
+  @Column({ nullable: true })
+  updatedBy?: number;
+
+  @CreateDateColumn()
+  createdAt!: Date;
+
+  @UpdateDateColumn()
+  updatedAt!: Date;
+
+  @DeleteDateColumn()
+  deletedAt?: Date;
+}
+
+// File: src/src/entities/JournalEntry.ts
+
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  JoinColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+  DeleteDateColumn,
+} from 'typeorm';
+import { Account } from './Account';
+
+@Entity()
+export class JournalEntry {
+  @PrimaryGeneratedColumn('uuid')
+  id!: string;
+
+  @Column({ type: 'date' })
+  date!: string;
+
+  @Column({ type: 'varchar' })
+  refType!: string; // e.g. 'EXPENSE', 'STOCK', etc.
+
+  @Column({ type: 'uuid' })
+  refId!: string;
+
+  @ManyToOne(() => Account, (acct) => acct.debitJournalEntries)
+  @JoinColumn({ name: 'debitAccountId' })
+  debitAccount!: Account;
+
+  @Column()
+  debitAccountId!: string;
+
+  @ManyToOne(() => Account, (acct) => acct.creditJournalEntries)
+  @JoinColumn({ name: 'creditAccountId' })
+  creditAccount!: Account;
+
+  @Column()
+  creditAccountId!: string;
+
+  @Column({ type: 'decimal' })
+  amount!: number;
+
+  @Column({ type: 'text', default: '' })
+  description!: string;
+
+  @Column({ nullable: true })
+  transactionReference?: string;
+
+  @Column({ nullable: true })
+  createdBy?: number;
+
+  @Column({ nullable: true })
+  updatedBy?: number;
+
+  @CreateDateColumn()
+  createdAt!: Date;
+
+  @UpdateDateColumn()
+  updatedAt!: Date;
+
+  @DeleteDateColumn()
+  deletedAt?: Date;
+}
+
+// File: src/src/entities/LeaveRequest.ts
+
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  DeleteDateColumn,
+} from 'typeorm';
+import { Employee } from './Employee';
+
+export enum LeaveStatus {
+  PENDING = 'Pending',
+  APPROVED = 'Approved',
+  REJECTED = 'Rejected',
+}
+
+@Entity()
+export class LeaveRequest {
+  @PrimaryGeneratedColumn('uuid')
+  id!: string;
+
+  @ManyToOne(() => Employee, (emp) => emp.leaveRequests)
+  employee!: Employee;
+
+  @Column({ type: 'date' })
+  startDate!: string;
+
+  @Column({ type: 'date' })
+  endDate!: string;
+
+  @Column({ type: 'enum', enum: LeaveStatus, default: LeaveStatus.PENDING })
+  status!: LeaveStatus;
+
+  @Column({ type: 'text', nullable: true })
+  reason?: string;
+
+  @Column({ nullable: true })
+  createdBy?: number;
+
+  @Column({ nullable: true })
+  updatedBy?: number;
+
+  @CreateDateColumn()
+  createdAt!: Date;
+
+  @UpdateDateColumn()
+  updatedAt!: Date;
+
+  @DeleteDateColumn()
+  deletedAt?: Date;
+}
+
+// File: src/src/entities/Note.ts
+
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  DeleteDateColumn,
+} from 'typeorm';
+
+@Entity()
+export class Note {
+  @PrimaryGeneratedColumn('uuid')
+  id!: string;
+
+  @Column({ type: 'text' })
+  content!: string;
+
+  @Column({ nullable: true })
+  createdBy?: number;
+
+  @Column({ nullable: true })
+  updatedBy?: number;
+
+  @CreateDateColumn()
+  createdAt!: Date;
+
+  @UpdateDateColumn()
+  updatedAt!: Date;
+
+  @DeleteDateColumn()
+  deletedAt?: Date;
+}
+
+// File: src/src/entities/Permission.ts
+
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  JoinColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+  DeleteDateColumn,
+} from 'typeorm';
+import { Role } from './Role';
+
+@Entity()
+export class Permission {
+  @PrimaryGeneratedColumn('uuid')
+  id!: string;
+
+  @Column()
+  module!: string;
+
+  @Column()
+  action!: string;
+
+  @ManyToOne(() => Role, (role) => role.permissions)
+  @JoinColumn({ name: 'roleId' })
+  role!: Role;
+
+  @Column()
+  roleId!: string;
+
+  @Column({ nullable: true })
+  createdBy?: number;
+
+  @Column({ nullable: true })
+  updatedBy?: number;
+
+  @CreateDateColumn()
+  createdAt!: Date;
+
+  @UpdateDateColumn()
+  updatedAt!: Date;
+
+  @DeleteDateColumn()
+  deletedAt?: Date;
+}
+
+// File: src/src/entities/Position.ts
+
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  DeleteDateColumn,
+} from 'typeorm';
+
+@Entity()
+export class Position {
+  @PrimaryGeneratedColumn('uuid')
+  id!: string;
+
+  @Column({ unique: true })
+  title!: string;
+
+  @Column({ type: 'text', nullable: true })
+  description?: string;
+
+  @Column({ nullable: true })
+  createdBy?: number;
+
+  @Column({ nullable: true })
+  updatedBy?: number;
+
+  @CreateDateColumn()
+  createdAt!: Date;
+
+  @UpdateDateColumn()
+  updatedAt!: Date;
+
+  @DeleteDateColumn()
+  deletedAt?: Date;
+}
+
+// File: src/src/entities/Product.ts
+
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToMany,
+  ManyToOne,
+  CreateDateColumn,
+  UpdateDateColumn,
+  DeleteDateColumn,
+} from 'typeorm';
+import { Batch } from './Batch';
+import { SubCategory } from './SubCategory';
+import { Stock } from './Stock';
+
+@Entity()
+export class Product {
+  @PrimaryGeneratedColumn('uuid')
+  id!: string;
+
+  @Column({ unique: true })
+  name!: string;
+
+  @Column({ type: 'text', nullable: true })
+  description?: string;
+
+  @ManyToOne(() => SubCategory, (sub) => sub.products)
+  subCategory!: SubCategory;
+
+  @OneToMany(() => Batch, (batch) => batch.product)
+  batches!: Batch[];
+
+  @Column({ type: 'decimal', default: 0 })
+  unitCost!: number;
+
+  @Column({ type: 'decimal', default: 0 })
+  unitPrice!: number;
+
+  @OneToMany(() => Stock, (stock) => stock.product)
+  stockEntries!: Stock[];
+
+  @Column({ nullable: true })
+  createdBy?: number;
+
+  @Column({ nullable: true })
+  updatedBy?: number;
+
+  @CreateDateColumn()
+  createdAt!: Date;
+
+  @UpdateDateColumn()
+  updatedAt!: Date;
+
+  @DeleteDateColumn()
+  deletedAt?: Date;
+}
+
+// File: src/src/entities/Purchase.ts
+
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  OneToMany,
+  CreateDateColumn,
+  UpdateDateColumn,
+  DeleteDateColumn,
+} from 'typeorm';
+import { Supplier } from './Supplier';
+import { PurchaseProduct } from './PurchaseProduct';
+
+@Entity()
+export class Purchase {
+  @PrimaryGeneratedColumn('uuid')
+  id!: string;
+
+  @Column({ type: 'date' })
+  purchaseDate!: string;
+
+  @ManyToOne(() => Supplier, (sup) => sup.purchases)
+  supplier!: Supplier;
+
+  @OneToMany(() => PurchaseProduct, (item) => item.purchase, { cascade: true })
+  items!: PurchaseProduct[];
+
+  @Column({ type: 'decimal', default: 0 })
+  totalAmount!: number;
+
+  @Column({ nullable: true })
+  createdBy?: number;
+
+  @Column({ nullable: true })
+  updatedBy?: number;
+
+  @CreateDateColumn()
+  createdAt!: Date;
+
+  @UpdateDateColumn()
+  updatedAt!: Date;
+
+  @DeleteDateColumn()
+  deletedAt?: Date;
+}
+
+// File: src/src/entities/PurchaseProduct.ts
+
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  CreateDateColumn,
+  UpdateDateColumn,
+  DeleteDateColumn,
+} from 'typeorm';
+import { Purchase } from './Purchase';
+import { Product } from './Product';
+
+@Entity()
+export class PurchaseProduct {
+  @PrimaryGeneratedColumn('uuid')
+  id!: string;
+
+  @ManyToOne(() => Purchase, (pur) => pur.items)
+  purchase!: Purchase;
+
+  @ManyToOne(() => Product, (prod) => prod.stockEntries)
+  product!: Product;
+
+  @Column({ type: 'int' })
+  quantity!: number;
+
+  @Column({ type: 'decimal' })
+  unitCost!: number;
+
+  @Column({ type: 'decimal', default: 0 })
+  totalCost!: number; // quantity * unitCost
+
+  @Column({ nullable: true })
+  createdBy?: number;
+
+  @Column({ nullable: true })
+  updatedBy?: number;
+
+  @CreateDateColumn()
+  createdAt!: Date;
+
+  @UpdateDateColumn()
+  updatedAt!: Date;
+
+  @DeleteDateColumn()
+  deletedAt?: Date;
+}
+
+// File: src/src/entities/Role.ts
+
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToMany,
+  CreateDateColumn,
+  UpdateDateColumn,
+  DeleteDateColumn,
+} from 'typeorm';
+import { Employee } from './Employee';
+import { Permission } from './Permission';
+
+@Entity()
+export class Role {
+  @PrimaryGeneratedColumn('uuid')
+  id!: string;
+
+  @Column({ unique: true })
+  name!: string;
+
+  @Column({ type: 'text', nullable: true })
+  description?: string;
+
+  @OneToMany(() => Employee, (emp) => emp.role)
+  employees!: Employee[];
+
+  @OneToMany(() => Permission, (perm) => perm.role)
+  permissions!: Permission[];
+
+  @Column({ nullable: true })
+  createdBy?: number;
+
+  @Column({ nullable: true })
+  updatedBy?: number;
+
+  @CreateDateColumn()
+  createdAt!: Date;
+
+  @UpdateDateColumn()
+  updatedAt!: Date;
+
+  @DeleteDateColumn()
+  deletedAt?: Date;
+}
+
+// File: src/src/entities/Sale.ts
+
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  OneToMany,
+  CreateDateColumn,
+  UpdateDateColumn,
+  DeleteDateColumn,
+} from 'typeorm';
+import { Customer } from './Customer';
+import { SaleProduct } from './SaleProduct';
+
+@Entity()
+export class Sale {
+  @PrimaryGeneratedColumn('uuid')
+  id!: string;
+
+  @Column({ type: 'date' })
+  saleDate!: string;
+
+  @ManyToOne(() => Customer, (cust) => cust.sales)
+  customer!: Customer;
+
+  @OneToMany(() => SaleProduct, (item) => item.sale, { cascade: true })
+  items!: SaleProduct[];
+
+  @Column({ type: 'decimal', default: 0 })
+  totalAmount!: number;
+
+  @Column({ nullable: true })
+  createdBy?: number;
+
+  @Column({ nullable: true })
+  updatedBy?: number;
+
+  @CreateDateColumn()
+  createdAt!: Date;
+
+  @UpdateDateColumn()
+  updatedAt!: Date;
+
+  @DeleteDateColumn()
+  deletedAt?: Date;
+}
+
+// File: src/src/entities/SaleProduct.ts
+
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  CreateDateColumn,
+  UpdateDateColumn,
+  DeleteDateColumn,
+} from 'typeorm';
+import { Sale } from './Sale';
+import { Product } from './Product';
+
+@Entity()
+export class SaleProduct {
+  @PrimaryGeneratedColumn('uuid')
+  id!: string;
+
+  @ManyToOne(() => Sale, (sale) => sale.items)
+  sale!: Sale;
+
+  @ManyToOne(() => Product, (prod) => prod.stockEntries)
+  product!: Product;
+
+  @Column({ type: 'int' })
+  quantity!: number;
+
+  @Column({ type: 'decimal' })
+  unitPrice!: number;
+
+  @Column({ type: 'decimal', default: 0 })
+  totalPrice!: number; // quantity * unitPrice
+
+  @Column({ nullable: true })
+  createdBy?: number;
+
+  @Column({ nullable: true })
+  updatedBy?: number;
+
+  @CreateDateColumn()
+  createdAt!: Date;
+
+  @UpdateDateColumn()
+  updatedAt!: Date;
+
+  @DeleteDateColumn()
+  deletedAt?: Date;
+}
+
+// File: src/src/entities/SaleReturn.ts
+
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  OneToMany,
+  CreateDateColumn,
+  UpdateDateColumn,
+  DeleteDateColumn,
+} from 'typeorm';
+import { Sale } from './Sale';
+import { SaleReturnProduct } from './SaleReturnProduct';
+
+@Entity()
+export class SaleReturn {
+  @PrimaryGeneratedColumn('uuid')
+  id!: string;
+
+  @Column({ type: 'date' })
+  returnDate!: string;
+
+  @ManyToOne(() => Sale, (sale) => sale.id)
+  sale!: Sale;
+
+  @OneToMany(() => SaleReturnProduct, (item) => item.saleReturn, { cascade: true })
+  items!: SaleReturnProduct[];
+
+  @Column({ type: 'decimal', default: 0 })
+  totalReturnAmount!: number;
+
+  @Column({ nullable: true })
+  createdBy?: number;
+
+  @Column({ nullable: true })
+  updatedBy?: number;
+
+  @CreateDateColumn()
+  createdAt!: Date;
+
+  @UpdateDateColumn()
+  updatedAt!: Date;
+
+  @DeleteDateColumn()
+  deletedAt?: Date;
+}
+
+// File: src/src/entities/SaleReturnProduct.ts
+
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  CreateDateColumn,
+  UpdateDateColumn,
+  DeleteDateColumn,
+} from 'typeorm';
+import { SaleReturn } from './SaleReturn';
+import { Product } from './Product';
+
+@Entity()
+export class SaleReturnProduct {
+  @PrimaryGeneratedColumn('uuid')
+  id!: string;
+
+  @ManyToOne(() => SaleReturn, (sr) => sr.items)
+  saleReturn!: SaleReturn;
+
+  @ManyToOne(() => Product, (prod) => prod.stockEntries)
+  product!: Product;
+
+  @Column({ type: 'int' })
+  quantity!: number;
+
+  @Column({ type: 'decimal' })
+  unitPrice!: number;
+
+  @Column({ type: 'decimal', default: 0 })
+  totalPrice!: number; // quantity * unitPrice
+
+  @Column({ nullable: true })
+  createdBy?: number;
+
+  @Column({ nullable: true })
+  updatedBy?: number;
+
+  @CreateDateColumn()
+  createdAt!: Date;
+
+  @UpdateDateColumn()
+  updatedAt!: Date;
+
+  @DeleteDateColumn()
+  deletedAt?: Date;
+}
+
+// File: src/src/entities/Setting.ts
+
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  DeleteDateColumn,
+} from 'typeorm';
+
+@Entity()
+export class Setting {
+  @PrimaryGeneratedColumn('uuid')
+  id!: string;
+
+  @Column({ unique: true })
+  key!: string;
+
+  @Column({ type: 'text' })
+  value!: string;
+
+  @Column({ nullable: true })
+  createdBy?: number;
+
+  @Column({ nullable: true })
+  updatedBy?: number;
+
+  @CreateDateColumn()
+  createdAt!: Date;
+
+  @UpdateDateColumn()
+  updatedAt!: Date;
+
+  @DeleteDateColumn()
+  deletedAt?: Date;
+}
+
+// File: src/src/entities/Stock.ts
+
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  CreateDateColumn,
+  UpdateDateColumn,
+  DeleteDateColumn,
+} from 'typeorm';
+import { Product } from './Product';
+
+@Entity()
+export class Stock {
+  @PrimaryGeneratedColumn('uuid')
+  id!: string;
+
+  @ManyToOne(() => Product, (prod) => prod.stockEntries)
+  product!: Product;
+
+  @Column({ type: 'int' })
+  quantity!: number;
+
+  @Column({ type: 'decimal' })
+  unitCost!: number;
+
+  @Column({ type: 'text', nullable: true })
+  warehouse?: string;
+
+  @Column({ nullable: true })
+  createdBy?: number;
+
+  @Column({ nullable: true })
+  updatedBy?: number;
+
+  @CreateDateColumn()
+  createdAt!: Date;
+
+  @UpdateDateColumn()
+  updatedAt!: Date;
+
+  @DeleteDateColumn()
+  deletedAt?: Date;
+}
+
+// File: src/src/entities/StockAdjustment.ts
+
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  CreateDateColumn,
+  UpdateDateColumn,
+  DeleteDateColumn,
+} from 'typeorm';
+import { Product } from './Product';
+
+@Entity()
+export class StockAdjustment {
+  @PrimaryGeneratedColumn('uuid')
+  id!: string;
+
+  @ManyToOne(() => Product, (prod) => prod.stockEntries)
+  product!: Product;
+
+  @Column({ type: 'int' })
+  quantityChange!: number; // positive or negative
+
+  @Column({ type: 'text', nullable: true })
+  reason?: string;
+
+  @Column({ nullable: true })
+  createdBy?: number;
+
+  @Column({ nullable: true })
+  updatedBy?: number;
+
+  @CreateDateColumn()
+  createdAt!: Date;
+
+  @UpdateDateColumn()
+  updatedAt!: Date;
+
+  @DeleteDateColumn()
+  deletedAt?: Date;
+}
+
+// File: src/src/entities/StockTransfer.ts
+
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  CreateDateColumn,
+  UpdateDateColumn,
+  DeleteDateColumn,
+} from 'typeorm';
+import { Product } from './Product';
+
+@Entity()
+export class StockTransfer {
+  @PrimaryGeneratedColumn('uuid')
+  id!: string;
+
+  @ManyToOne(() => Product, (prod) => prod.stockEntries)
+  product!: Product;
+
+  @Column({ type: 'int' })
+  quantity!: number;
+
+  @Column()
+  fromLocation!: string;
+
+  @Column()
+  toLocation!: string;
+
+  @Column({ nullable: true })
+  createdBy?: number;
+
+  @Column({ nullable: true })
+  updatedBy?: number;
+
+  @CreateDateColumn()
+  createdAt!: Date;
+
+  @UpdateDateColumn()
+  updatedAt!: Date;
+
+  @DeleteDateColumn()
+  deletedAt?: Date;
+}
+
+// File: src/src/entities/Store.ts
+
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  OneToMany,
+  CreateDateColumn,
+  UpdateDateColumn,
+  DeleteDateColumn,
+} from 'typeorm';
+import { Shop } from './Shop';
+import { Incharge } from './Incharge';
+import { Employee } from './Employee';
+
+@Entity()
+export class Store {
+  @PrimaryGeneratedColumn('uuid')
+  id!: string;
+
+  @Column()
+  name!: string;
+
+  @ManyToOne(() => Shop, (shop) => shop.stores)
+  shop!: Shop;
+
+  @ManyToOne(() => Incharge, (inc) => inc.stores)
+  incharge!: Incharge;
+
+  @OneToMany(() => Employee, (emp) => emp.store)
+  employees!: Employee[];
+
+  @Column({ nullable: true })
+  createdBy?: number;
+
+  @Column({ nullable: true })
+  updatedBy?: number;
+
+  @CreateDateColumn()
+  createdAt!: Date;
+
+  @UpdateDateColumn()
+  updatedAt!: Date;
+
+  @DeleteDateColumn()
+  deletedAt?: Date;
+}
+
+// File: src/src/entities/SubCategory.ts
+
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  OneToMany,
+  CreateDateColumn,
+  UpdateDateColumn,
+  DeleteDateColumn,
+} from 'typeorm';
+import { Category } from './Category';
+import { Product } from './Product';
+
+@Entity()
+export class SubCategory {
+  @PrimaryGeneratedColumn('uuid')
+  id!: string;
+
+  @Column({ unique: true })
+  name!: string;
+
+  @Column({ type: 'text', nullable: true })
+  description?: string;
+
+  @ManyToOne(() => Category, (cat) => cat.subcategories)
+  category!: Category;
+
+  @OneToMany(() => Product, (prod) => prod.subCategory)
+  products!: Product[];
+
+  @Column({ nullable: true })
+  createdBy?: number;
+
+  @Column({ nullable: true })
+  updatedBy?: number;
+
+  @CreateDateColumn()
+  createdAt!: Date;
+
+  @UpdateDateColumn()
+  updatedAt!: Date;
+
+  @DeleteDateColumn()
+  deletedAt?: Date;
+}
+
+// File: src/src/entities/Supplier.ts
+
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToMany,
+  CreateDateColumn,
+  UpdateDateColumn,
+  DeleteDateColumn,
+} from 'typeorm';
+import { Purchase } from './Purchase';
+
+@Entity()
+export class Supplier {
+  @PrimaryGeneratedColumn('uuid')
+  id!: string;
+
+  @Column()
+  name!: string;
+
+  @Column({ unique: true })
+  phone!: string;
+
+  @Column({ type: 'text', nullable: true })
+  address?: string;
+
+  @OneToMany(() => Purchase, (pur) => pur.supplier)
+  purchases!: Purchase[];
+
+  @Column({ nullable: true })
+  createdBy?: number;
+
+  @Column({ nullable: true })
+  updatedBy?: number;
+
+  @CreateDateColumn()
+  createdAt!: Date;
+
+  @UpdateDateColumn()
+  updatedAt!: Date;
+
+  @DeleteDateColumn()
+  deletedAt?: Date;
+}
+
+// File: src/src/entities/TaxRate.ts
+
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  DeleteDateColumn,
+} from 'typeorm';
+
+@Entity()
+export class TaxRate {
+  @PrimaryGeneratedColumn('uuid')
+  id!: string;
+
+  @Column({ type: 'decimal' })
+  rate!: number; // e.g. 0.05 for 5%
+
+  @Column({ type: 'text', nullable: true })
+  description?: string;
+
+  @Column({ nullable: true })
+  createdBy?: number;
+
+  @Column({ nullable: true })
+  updatedBy?: number;
+
+  @CreateDateColumn()
+  createdAt!: Date;
+
+  @UpdateDateColumn()
+  updatedAt!: Date;
+
+  @DeleteDateColumn()
+  deletedAt?: Date;
+}
+
+// File: src/src/entities/Transaction.ts
+
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  CreateDateColumn,
+  UpdateDateColumn,
+  DeleteDateColumn,
+} from 'typeorm';
+import { Account } from './Account';
+
+export enum TransactionType {
+  DEBIT = 'Debit',
+  CREDIT = 'Credit',
+}
+
+@Entity()
+export class Transaction {
+  @PrimaryGeneratedColumn('uuid')
+  id!: string;
+
+  @ManyToOne(() => Account, (acct) => acct.debitJournalEntries, { nullable: true })
+  debitAccount?: Account;
+
+  @ManyToOne(() => Account, (acct) => acct.creditJournalEntries, { nullable: true })
+  creditAccount?: Account;
+
+  @Column({ type: 'decimal' })
+  amount!: number;
+
+  @Column({ type: 'enum', enum: TransactionType })
+  type!: TransactionType;
+
+  @Column({ type: 'text', nullable: true })
+  description?: string;
+
+  @Column({ nullable: true })
+  transactionReference?: string;
+
+  @Column({ nullable: true })
+  createdBy?: number;
+
+  @Column({ nullable: true })
+  updatedBy?: number;
+
+  @CreateDateColumn()
+  createdAt!: Date;
+
+  @UpdateDateColumn()
+  updatedAt!: Date;
+
+  @DeleteDateColumn()
+  deletedAt?: Date;
+}
+
+// ------------------------------------
+// DTOs
+// ------------------------------------
+
+// File: src/src/dtos/CreateAccountDto.ts
+import { IsString, IsEnum, IsOptional } from 'class-validator';
+import { AccountType } from '../entities/Account';
+
+export class CreateAccountDto {
+  @IsString()
+  name!: string;
+
+  @IsOptional()
+  @IsString()
+  description?: string;
+
+  @IsEnum(AccountType)
+  accountType!: AccountType;
+}
+
+// File: src/src/dtos/UpdateAccountDto.ts
+import { IsOptional, IsString, IsEnum } from 'class-validator';
+import { AccountType } from '../entities/Account';
+
+export class UpdateAccountDto {
+  @IsOptional()
+  @IsString()
+  name?: string;
+
+  @IsOptional()
+  @IsString()
+  description?: string;
+
+  @IsOptional()
+  @IsEnum(AccountType)
+  accountType?: AccountType;
+}
+
+// File: src/src/dtos/CreateAttendanceDto.ts
+import { IsUUID, IsDateString, IsOptional, IsString } from 'class-validator';
+
+export class CreateAttendanceDto {
+  @IsUUID()
+  employee!: string;     // Employee ID
+
+  @IsDateString()
+  date!: string;
+
+  @IsOptional()
+  @IsString()
+  checkIn?: string;
+
+  @IsOptional()
+  @IsString()
+  checkOut?: string;
+}
+
+// File: src/src/dtos/UpdateAttendanceDto.ts
+import { IsOptional, IsUUID, IsDateString, IsString } from 'class-validator';
+
+export class UpdateAttendanceDto {
+  @IsOptional()
+  @IsUUID()
+  employee?: string;
+
+  @IsOptional()
+  @IsDateString()
+  date?: string;
+
+  @IsOptional()
+  @IsString()
+  checkIn?: string;
+
+  @IsOptional()
+  @IsString()
+  checkOut?: string;
+}
+
+// File: src/src/dtos/CreateBadgeDto.ts
+import { IsString, IsInt, IsOptional } from 'class-validator';
+
+export class CreateBadgeDto {
+  @IsString()
+  code!: string;
+
+  @IsInt()
+  level!: number;
+
+  @IsOptional()
+  @IsString()
+  description?: string;
+}
+
+// File: src/src/dtos/UpdateBadgeDto.ts
+import { IsOptional, IsString, IsInt } from 'class-validator';
+
+export class UpdateBadgeDto {
+  @IsOptional()
+  @IsString()
+  code?: string;
+
+  @IsOptional()
+  @IsInt()
+  level?: number;
+
+  @IsOptional()
+  @IsString()
+  description?: string;
+}
+
+// File: src/src/dtos/CreateBatchDto.ts
+import { IsUUID, IsDateString, IsInt } from 'class-validator';
+
+export class CreateBatchDto {
+  @IsUUID()
+  product!: string;         // Product ID
+
+  @IsDateString()
+  manufactureDate!: string;
+
+  @IsDateString()
+  expiryDate!: string;
+
+  @IsInt()
+  quantity!: number;
+}
+
+// File: src/src/dtos/UpdateBatchDto.ts
+import { IsOptional, IsUUID, IsDateString, IsInt } from 'class-validator';
+
+export class UpdateBatchDto {
+  @IsOptional()
+  @IsUUID()
+  product?: string;
+
+  @IsOptional()
+  @IsDateString()
+  manufactureDate?: string;
+
+  @IsOptional()
+  @IsDateString()
+  expiryDate?: string;
+
+  @IsOptional()
+  @IsInt()
+  quantity?: number;
+}
+
+// File: src/src/dtos/CreateCategoryDto.ts
+import { IsString, IsOptional } from 'class-validator';
+
+export class CreateCategoryDto {
+  @IsString()
+  name!: string;
+
+  @IsOptional()
+  @IsString()
+  description?: string;
+}
+
+// File: src/src/dtos/UpdateCategoryDto.ts
+import { IsOptional, IsString } from 'class-validator';
+
+export class UpdateCategoryDto {
+  @IsOptional()
+  @IsString()
+  name?: string;
+
+  @IsOptional()
+  @IsString()
+  description?: string;
+}
+
+// File: src/src/dtos/CreateCustomerDto.ts
+import { IsString, IsOptional } from 'class-validator';
+
+export class CreateCustomerDto {
+  @IsString()
+  name!: string;
+
+  @IsString()
+  phone!: string;
+
+  @IsOptional()
+  @IsString()
+  address?: string;
+}
+
+// File: src/src/dtos/UpdateCustomerDto.ts
+import { IsOptional, IsString } from 'class-validator';
+
+export class UpdateCustomerDto {
+  @IsOptional()
+  @IsString()
+  name?: string;
+
+  @IsOptional()
+  @IsString()
+  phone?: string;
+
+  @IsOptional()
+  @IsString()
+  address?: string;
+}
+
+// File: src/src/dtos/CreateDepartmentDto.ts
+import { IsString } from 'class-validator';
+
+export class CreateDepartmentDto {
+  @IsString()
+  name!: string;
+}
+
+// File: src/src/dtos/UpdateDepartmentDto.ts
+import { IsOptional, IsString } from 'class-validator';
+
+export class UpdateDepartmentDto {
+  @IsOptional()
+  @IsString()
+  name?: string;
+}
+
+// File: src/src/dtos/CreateEmployeeDto.ts
+import { IsString, IsEmail, IsUUID } from 'class-validator';
+
+export class CreateEmployeeDto {
+  @IsString()
+  name!: string;
+
+  @IsEmail()
+  email!: string;
+
+  @IsUUID()
+  department!: string;
+
+  @IsUUID()
+  store!: string;
+}
+
+// File: src/src/dtos/UpdateEmployeeDto.ts
+import { IsOptional, IsString, IsEmail, IsUUID } from 'class-validator';
+
+export class UpdateEmployeeDto {
+  @IsOptional()
+  @IsString()
+  name?: string;
+
+  @IsOptional()
+  @IsEmail()
+  email?: string;
+
+  @IsOptional()
+  @IsUUID()
+  department?: string;
+
+  @IsOptional()
+  @IsUUID()
+  store?: string;
+}
+
+// File: src/src/dtos/CreateExpenseDto.ts
+import { IsNumber, IsString, IsUUID } from 'class-validator';
+
+export class CreateExpenseDto {
+  @IsNumber()
+  amount!: number;
+
+  @IsString()
+  description!: string;
+
+  @IsUUID()
+  account!: string;   // Account ID
+
+  @IsUUID()
+  employee!: string;  // Employee ID
+}
+
+// File: src/src/dtos/UpdateExpenseDto.ts
+import { IsOptional, IsNumber, IsString, IsUUID } from 'class-validator';
+
+export class UpdateExpenseDto {
+  @IsOptional()
+  @IsNumber()
+  amount?: number;
+
+  @IsOptional()
+  @IsString()
+  description?: string;
+
+  @IsOptional()
+  @IsUUID()
+  account?: string;
+
+  @IsOptional()
+  @IsUUID()
+  employee?: string;
+}
+
+// File: src/src/dtos/CreateInchargeDto.ts
+import { IsString, IsEmail } from 'class-validator';
+
+export class CreateInchargeDto {
+  @IsString()
+  name!: string;
+
+  @IsEmail()
+  email!: string;
+}
+
+// File: src/src/dtos/UpdateInchargeDto.ts
+import { IsOptional, IsString, IsEmail } from 'class-validator';
+
+export class UpdateInchargeDto {
+  @IsOptional()
+  @IsString()
+  name?: string;
+
+  @IsOptional()
+  @IsEmail()
+  email?: string;
+}
+
+// File: src/src/dtos/CreateLeaveRequestDto.ts
+import { IsUUID, IsDateString, IsEnum, IsOptional, IsString } from 'class-validator';
+import { LeaveStatus } from '../entities/LeaveRequest';
+
+export class CreateLeaveRequestDto {
+  @IsUUID()
+  employee!: string;
+
+  @IsDateString()
+  startDate!: string;
+
+  @IsDateString()
+  endDate!: string;
+
+  @IsOptional()
+  @IsEnum(LeaveStatus)
+  status?: LeaveStatus;
+
+  @IsOptional()
+  @IsString()
+  reason?: string;
+}
+
+// File: src/src/dtos/UpdateLeaveRequestDto.ts
+import { IsOptional, IsDateString, IsEnum, IsString } from 'class-validator';
+import { LeaveStatus } from '../entities/LeaveRequest';
+
+export class UpdateLeaveRequestDto {
+  @IsOptional()
+  @IsDateString()
+  startDate?: string;
+
+  @IsOptional()
+  @IsDateString()
+  endDate?: string;
+
+  @IsOptional()
+  @IsEnum(LeaveStatus)
+  status?: LeaveStatus;
+
+  @IsOptional()
+  @IsString()
+  reason?: string;
+}
+
+// File: src/src/dtos/CreateNoteDto.ts
+import { IsString } from 'class-validator';
+
+export class CreateNoteDto {
+  @IsString()
+  content!: string;
+}
+
+// File: src/src/dtos/UpdateNoteDto.ts
+import { IsOptional, IsString } from 'class-validator';
+
+export class UpdateNoteDto {
+  @IsOptional()
+  @IsString()
+  content?: string;
+}
+
+// File: src/src/dtos/CreatePermissionDto.ts
+import { IsString, IsUUID } from 'class-validator';
+
+export class CreatePermissionDto {
+  @IsString()
+  module!: string;
+
+  @IsString()
+  action!: string;
+
+  @IsUUID()
+  role!: string;
+}
+
+// File: src/src/dtos/UpdatePermissionDto.ts
+import { IsOptional, IsString, IsUUID } from 'class-validator';
+
+export class UpdatePermissionDto {
+  @IsOptional()
+  @IsString()
+  module?: string;
+
+  @IsOptional()
+  @IsString()
+  action?: string;
+
+  @IsOptional()
+  @IsUUID()
+  role?: string;
+}
+
+// File: src/src/dtos/CreatePositionDto.ts
+import { IsString, IsOptional } from 'class-validator';
+
+export class CreatePositionDto {
+  @IsString()
+  title!: string;
+
+  @IsOptional()
+  @IsString()
+  description?: string;
+}
+
+// File: src/src/dtos/UpdatePositionDto.ts
+import { IsOptional, IsString } from 'class-validator';
+
+export class UpdatePositionDto {
+  @IsOptional()
+  @IsString()
+  title?: string;
+
+  @IsOptional()
+  @IsString()
+  description?: string;
+}
+
+// File: src/src/dtos/CreateProductDto.ts
+import { IsString, IsUUID, IsNumber, IsOptional } from 'class-validator';
+
+export class CreateProductDto {
+  @IsString()
+  name!: string;
+
+  @IsOptional()
+  @IsString()
+  description?: string;
+
+  @IsUUID()
+  subCategory!: string;
+
+  @IsNumber()
+  unitCost!: number;
+
+  @IsNumber()
+  unitPrice!: number;
+}
+
+// File: src/src/dtos/UpdateProductDto.ts
+import { IsOptional, IsString, IsUUID, IsNumber } from 'class-validator';
+
+export class UpdateProductDto {
+  @IsOptional()
+  @IsString()
+  name?: string;
+
+  @IsOptional()
+  @IsString()
+  description?: string;
+
+  @IsOptional()
+  @IsUUID()
+  subCategory?: string;
+
+  @IsOptional()
+  @IsNumber()
+  unitCost?: number;
+
+  @IsOptional()
+  @IsNumber()
+  unitPrice?: number;
+}
+
+// File: src/src/dtos/CreatePurchaseDto.ts
+import { IsDateString, IsUUID, IsNumber } from 'class-validator';
+
+export class CreatePurchaseDto {
+  @IsDateString()
+  purchaseDate!: string;
+
+  @IsUUID()
+  supplier!: string;
+
+  @IsNumber()
+  totalAmount!: number;
+}
+
+// File: src/src/dtos/UpdatePurchaseDto.ts
+import { IsOptional, IsDateString, IsUUID, IsNumber } from 'class-validator';
+
+export class UpdatePurchaseDto {
+  @IsOptional()
+  @IsDateString()
+  purchaseDate?: string;
+
+  @IsOptional()
+  @IsUUID()
+  supplier?: string;
+
+  @IsOptional()
+  @IsNumber()
+  totalAmount?: number;
+}
+
+// File: src/src/dtos/CreatePurchaseProductDto.ts
+import { IsUUID, IsInt, IsNumber } from 'class-validator';
+
+export class CreatePurchaseProductDto {
+  @IsUUID()
+  purchase!: string;
+
+  @IsUUID()
+  product!: string;
+
+  @IsInt()
+  quantity!: number;
+
+  @IsNumber()
+  unitCost!: number;
+}
+
+// File: src/src/dtos/UpdatePurchaseProductDto.ts
+import { IsOptional, IsUUID, IsInt, IsNumber } from 'class-validator';
+
+export class UpdatePurchaseProductDto {
+  @IsOptional()
+  @IsUUID()
+  purchase?: string;
+
+  @IsOptional()
+  @IsUUID()
+  product?: string;
+
+  @IsOptional()
+  @IsInt()
+  quantity?: number;
+
+  @IsOptional()
+  @IsNumber()
+  unitCost?: number;
+}
+
+// File: src/src/dtos/CreateRoleDto.ts
+import { IsString, IsOptional } from 'class-validator';
+
+export class CreateRoleDto {
+  @IsString()
+  name!: string;
+
+  @IsOptional()
+  @IsString()
+  description?: string;
+}
+
+// File: src/src/dtos/UpdateRoleDto.ts
+import { IsOptional, IsString } from 'class-validator';
+
+export class UpdateRoleDto {
+  @IsOptional()
+  @IsString()
+  name?: string;
+
+  @IsOptional()
+  @IsString()
+  description?: string;
+}
+
+// File: src/src/dtos/CreateSaleDto.ts
+import { IsDateString, IsUUID, IsNumber } from 'class-validator';
+
+export class CreateSaleDto {
+  @IsDateString()
+  saleDate!: string;
+
+  @IsUUID()
+  customer!: string;
+
+  @IsNumber()
+  totalAmount!: number;
+}
+
+// File: src/src/dtos/UpdateSaleDto.ts
+import { IsOptional, IsDateString, IsUUID, IsNumber } from 'class-validator';
+
+export class UpdateSaleDto {
+  @IsOptional()
+  @IsDateString()
+  saleDate?: string;
+
+  @IsOptional()
+  @IsUUID()
+  customer?: string;
+
+  @IsOptional()
+  @IsNumber()
+  totalAmount?: number;
+}
+
+// File: src/src/dtos/CreateSaleProductDto.ts
+import { IsUUID, IsInt, IsNumber } from 'class-validator';
+
+export class CreateSaleProductDto {
+  @IsUUID()
+  sale!: string;
+
+  @IsUUID()
+  product!: string;
+
+  @IsInt()
+  quantity!: number;
+
+  @IsNumber()
+  unitPrice!: number;
+}
+
+// File: src/src/dtos/UpdateSaleProductDto.ts
+import { IsOptional, IsUUID, IsInt, IsNumber } from 'class-validator';
+
+export class UpdateSaleProductDto {
+  @IsOptional()
+  @IsUUID()
+  sale?: string;
+
+  @IsOptional()
+  @IsUUID()
+  product?: string;
+
+  @IsOptional()
+  @IsInt()
+  quantity?: number;
+
+  @IsOptional()
+  @IsNumber()
+  unitPrice?: number;
+}
+
+// File: src/src/dtos/CreateSaleReturnDto.ts
+import { IsDateString, IsUUID, IsNumber } from 'class-validator';
+
+export class CreateSaleReturnDto {
+  @IsDateString()
+  returnDate!: string;
+
+  @IsUUID()
+  sale!: string;
+
+  @IsNumber()
+  totalReturnAmount!: number;
+}
+
+// File: src/src/dtos/UpdateSaleReturnDto.ts
+import { IsOptional, IsDateString, IsUUID, IsNumber } from 'class-validator';
+
+export class UpdateSaleReturnDto {
+  @IsOptional()
+  @IsDateString()
+  returnDate?: string;
+
+  @IsOptional()
+  @IsUUID()
+  sale?: string;
+
+  @IsOptional()
+  @IsNumber()
+  totalReturnAmount?: number;
+}
+
+// File: src/src/dtos/CreateSaleReturnProductDto.ts
+import { IsUUID, IsInt, IsNumber } from 'class-validator';
+
+export class CreateSaleReturnProductDto {
+  @IsUUID()
+  saleReturn!: string;
+
+  @IsUUID()
+  product!: string;
+
+  @IsInt()
+  quantity!: number;
+
+  @IsNumber()
+  unitPrice!: number;
+}
+
+// File: src/src/dtos/UpdateSaleReturnProductDto.ts
+import { IsOptional, IsUUID, IsInt, IsNumber } from 'class-validator';
+
+export class UpdateSaleReturnProductDto {
+  @IsOptional()
+  @IsUUID()
+  saleReturn?: string;
+
+  @IsOptional()
+  @IsUUID()
+  product?: string;
+
+  @IsOptional()
+  @IsInt()
+  quantity?: number;
+
+  @IsOptional()
+  @IsNumber()
+  unitPrice?: number;
+}
+
+// File: src/src/dtos/CreateSettingDto.ts
+import { IsString } from 'class-validator';
+
+export class CreateSettingDto {
+  @IsString()
+  key!: string;
+
+  @IsString()
+  value!: string;
+}
+
+// File: src/src/dtos/UpdateSettingDto.ts
+import { IsOptional, IsString } from 'class-validator';
+
+export class UpdateSettingDto {
+  @IsOptional()
+  @IsString()
+  key?: string;
+
+  @IsOptional()
+  @IsString()
+  value?: string;
+}
+
+// File: src/src/dtos/CreateStockDto.ts
+import { IsUUID, IsInt, IsNumber, IsOptional, IsString } from 'class-validator';
+
+export class CreateStockDto {
+  @IsUUID()
+  product!: string;
+
+  @IsInt()
+  quantity!: number;
+
+  @IsNumber()
+  unitCost!: number;
+
+  @IsOptional()
+  @IsString()
+  warehouse?: string;
+}
+
+// File: src/src/dtos/UpdateStockDto.ts
+import { IsOptional, IsUUID, IsInt, IsNumber, IsString } from 'class-validator';
+
+export class UpdateStockDto {
+  @IsOptional()
+  @IsUUID()
+  product?: string;
+
+  @IsOptional()
+  @IsInt()
+  quantity?: number;
+
+  @IsOptional()
+  @IsNumber()
+  unitCost?: number;
+
+  @IsOptional()
+  @IsString()
+  warehouse?: string;
+}
+
+// File: src/src/dtos/CreateStockAdjustmentDto.ts
+import { IsUUID, IsInt, IsOptional, IsString } from 'class-validator';
+
+export class CreateStockAdjustmentDto {
+  @IsUUID()
+  product!: string;
+
+  @IsInt()
+  quantityChange!: number; // positive or negative
+
+  @IsOptional()
+  @IsString()
+  reason?: string;
+}
+
+// File: src/src/dtos/UpdateStockAdjustmentDto.ts
+import { IsOptional, IsUUID, IsInt, IsString } from 'class-validator';
+
+export class UpdateStockAdjustmentDto {
+  @IsOptional()
+  @IsUUID()
+  product?: string;
+
+  @IsOptional()
+  @IsInt()
+  quantityChange?: number;
+
+  @IsOptional()
+  @IsString()
+  reason?: string;
+}
+
+// File: src/src/dtos/CreateStockTransferDto.ts
+import { IsUUID, IsInt, IsString } from 'class-validator';
+
+export class CreateStockTransferDto {
+  @IsUUID()
+  product!: string;
+
+  @IsInt()
+  quantity!: number;
+
+  @IsString()
+  fromLocation!: string;
+
+  @IsString()
+  toLocation!: string;
+}
+
+// File: src/src/dtos/UpdateStockTransferDto.ts
+import { IsOptional, IsUUID, IsInt, IsString } from 'class-validator';
+
+export class UpdateStockTransferDto {
+  @IsOptional()
+  @IsUUID()
+  product?: string;
+
+  @IsOptional()
+  @IsInt()
+  quantity?: number;
+
+  @IsOptional()
+  @IsString()
+  fromLocation?: string;
+
+  @IsOptional()
+  @IsString()
+  toLocation?: string;
+}
+
+// File: src/src/dtos/CreateStoreDto.ts
+import { IsString, IsUUID } from 'class-validator';
+
+export class CreateStoreDto {
+  @IsString()
+  name!: string;
+
+  @IsUUID()
+  shop!: string;
+
+  @IsUUID()
+  incharge!: string;
+}
+
+// File: src/src/dtos/UpdateStoreDto.ts
+import { IsOptional, IsString, IsUUID } from 'class-validator';
+
+export class UpdateStoreDto {
+  @IsOptional()
+  @IsString()
+  name?: string;
+
+  @IsOptional()
+  @IsUUID()
+  shop?: string;
+
+  @IsOptional()
+  @IsUUID()
+  incharge?: string;
+}
+
+// File: src/src/dtos/CreateSubCategoryDto.ts
+import { IsString, IsUUID, IsOptional } from 'class-validator';
+
+export class CreateSubCategoryDto {
+  @IsString()
+  name!: string;
+
+  @IsOptional()
+  @IsString()
+  description?: string;
+
+  @IsUUID()
+  category!: string;
+}
+
+// File: src/src/dtos/UpdateSubCategoryDto.ts
+import { IsOptional, IsString, IsUUID } from 'class-validator';
+
+export class UpdateSubCategoryDto {
+  @IsOptional()
+  @IsString()
+  name?: string;
+
+  @IsOptional()
+  @IsString()
+  description?: string;
+
+  @IsOptional()
+  @IsUUID()
+  category?: string;
+}
+
+// File: src/src/dtos/CreateSupplierDto.ts
+import { IsString, IsOptional } from 'class-validator';
+
+export class CreateSupplierDto {
+  @IsString()
+  name!: string;
+
+  @IsString()
+  phone!: string;
+
+  @IsOptional()
+  @IsString()
+  address?: string;
+}
+
+// File: src/src/dtos/UpdateSupplierDto.ts
+import { IsOptional, IsString } from 'class-validator';
+
+export class UpdateSupplierDto {
+  @IsOptional()
+  @IsString()
+  name?: string;
+
+  @IsOptional()
+  @IsString()
+  phone?: string;
+
+  @IsOptional()
+  @IsString()
+  address?: string;
+}
+
+// File: src/src/dtos/CreateTaxRateDto.ts
+import { IsNumber, IsOptional, IsString } from 'class-validator';
+
+export class CreateTaxRateDto {
+  @IsNumber()
+  rate!: number; // e.g. 0.05 for 5%
+
+  @IsOptional()
+  @IsString()
+  description?: string;
+}
+
+// File: src/src/dtos/UpdateTaxRateDto.ts
+import { IsOptional, IsNumber, IsString } from 'class-validator';
+
+export class UpdateTaxRateDto {
+  @IsOptional()
+  @IsNumber()
+  rate?: number;
+
+  @IsOptional()
+  @IsString()
+  description?: string;
+}
+
+// File: src/src/dtos/CreateTransactionDto.ts
+import { IsOptional, IsUUID, IsNumber, IsEnum, IsString } from 'class-validator';
+import { TransactionType } from '../entities/Transaction';
+
+export class CreateTransactionDto {
+  @IsOptional()
+  @IsUUID()
+  debitAccount?: string;  // ID of Account
+
+  @IsOptional()
+  @IsUUID()
+  creditAccount?: string;
+
+  @IsNumber()
+  amount!: number;
+
+  @IsEnum(TransactionType)
+  type!: TransactionType;
+
+  @IsOptional()
+  @IsString()
+  description?: string;
+}
+
+// File: src/src/dtos/UpdateTransactionDto.ts
+import { IsOptional, IsUUID, IsNumber, IsEnum, IsString } from 'class-validator';
+import { TransactionType } from '../entities/Transaction';
+
+export class UpdateTransactionDto {
+  @IsOptional()
+  @IsUUID()
+  debitAccount?: string;
+
+  @IsOptional()
+  @IsUUID()
+  creditAccount?: string;
+
+  @IsOptional()
+  @IsNumber()
+  amount?: number;
+
+  @IsOptional()
+  @IsEnum(TransactionType)
+  type?: TransactionType;
+
+  @IsOptional()
+  @IsString()
+  description?: string;
+}

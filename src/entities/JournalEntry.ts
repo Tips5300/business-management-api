@@ -28,15 +28,15 @@ export class JournalEntry {
   @JoinColumn({ name: 'debitAccountId' })
   debitAccount!: Account;
 
-  @Column()
-  debitAccountId!: string;
+  @Column({ nullable: true })
+  debitAccountId?: string;
 
   @ManyToOne(() => Account, (acct) => acct.creditJournalEntries)
   @JoinColumn({ name: 'creditAccountId' })
   creditAccount!: Account;
 
-  @Column()
-  creditAccountId!: string;
+  @Column({ nullable: true })
+  creditAccountId?: string;
 
   @Column({ type: 'decimal' })
   amount!: number;

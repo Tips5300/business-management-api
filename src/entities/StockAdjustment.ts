@@ -18,14 +18,14 @@ export class StockAdjustment {
   product!: Product;
 
   @Column('int') quantityChange!: number;
-  @Column({ type:'enum', enum:AdjustmentType }) adjustmentType!: AdjustmentType;
+  @Column({ type:'simple-enum', enum:AdjustmentType }) adjustmentType!: AdjustmentType;
 
   @ManyToOne(() => Store, { nullable:true }) store?: Store;  // optional
 
   @Column({ type:'decimal', precision:15, scale:2, nullable:true }) adjustedValue?: number;
   @Column({ type:'text', nullable:true }) reason?: string;
 
-  @Column({ type:'enum', enum:AdjustmentStatus, default:AdjustmentStatus.DONE })
+  @Column({ type:'simple-enum', enum:AdjustmentStatus, default:AdjustmentStatus.DONE })
   status!: AdjustmentStatus;                  // NEW
 
   @Column({ type:'text', nullable:true }) notes?: string;  // NEW

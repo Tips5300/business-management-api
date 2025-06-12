@@ -26,13 +26,13 @@ export class Customer {
   @Column({ unique: true }) whatsapp?: string;  // NEW
   @Column({ type: 'text', nullable: true }) address?: string;
   @Column({ nullable: true }) companyName?: string;
-  @Column({ type: 'enum', enum: CustomerType, default: CustomerType.Retailer })
+  @Column({ type: 'simple-enum', enum: CustomerType, default: CustomerType.Retailer })
   customerType!: CustomerType;
   @Column({ nullable: true }) taxId?: string;
 
   @OneToMany(() => Sale, (s) => s.customer) sales!: Sale[];
 
-  @Column({ type: 'enum', enum: ['Active', 'Inactive'], default: 'Active' })
+  @Column({ type: 'simple-enum', enum: ['Active', 'Inactive'], default: 'Active' })
   status!: 'Active' | 'Inactive';   // NEW
 
   @Column({ nullable: true }) createdBy?: number;

@@ -56,7 +56,7 @@ export class Sale {
   @Column('text', { array: true, nullable: true })
   receiptOrAny?: string[];
 
-  @Column({ type: "enum", enum: SaleStatus, default: SaleStatus.PENDING })
+  @Column({ type: "simple-enum", enum: SaleStatus, default: SaleStatus.PENDING })
   status!: SaleStatus;
 
   @Column({ type: "text", nullable: true }) notes?: string; // NEW

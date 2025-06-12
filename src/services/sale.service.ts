@@ -293,7 +293,7 @@ export class SaleService {
             }
 
             // Recover child items and sale
-            await qr.manager.recover(SaleProduct, sale.items.map((i) => i.id));
+            await qr.manager.recover(SaleProduct, sale.items.map((i) => ({ id: i.id })));
             await qr.manager.recover(Sale, sale);
 
             await qr.commitTransaction();

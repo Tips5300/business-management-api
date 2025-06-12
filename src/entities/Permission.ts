@@ -1,8 +1,8 @@
 // src/entities/Permission.ts
 
 import {
-  Entity, PrimaryGeneratedColumn, Column,
-  ManyToOne, JoinColumn, CreateDateColumn, UpdateDateColumn, DeleteDateColumn,
+  Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn,
+  ManyToMany,
 } from 'typeorm';
 import { Role } from './Role';
 
@@ -12,9 +12,8 @@ export class Permission {
   @Column() module!: string;
   @Column() action!: string;
 
-  @ManyToOne(() => Role, (r) => r.permissions, { nullable: false })
-  @JoinColumn({ name: 'roleId' })
-  role!: Role;
+  @ManyToMany(() => Role, (role) => role.permissions)
+  roles!: Role[];
 
   @Column({ type: 'boolean', default: true }) isAllowed!: boolean;
   

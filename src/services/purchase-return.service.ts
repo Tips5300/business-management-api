@@ -286,7 +286,7 @@ export class PurchaseReturnService {
                 }
             }
 
-            await qr.manager.recover(PurchaseReturnProduct, pr.items.map((i) => i.id));
+            await qr.manager.recover(PurchaseReturnProduct, pr.items.map((i) => ({ id: i.id })));
             await qr.manager.recover(PurchaseReturn, pr);
 
             await qr.commitTransaction();

@@ -22,7 +22,7 @@ export class StockTransfer {
   @ManyToOne(() => Store,{ nullable:false }) toStore!: Store;
 
   @Column('decimal',{precision:15,scale:2,nullable:true}) transferValue?: number;
-  @Column({ type:'enum', enum:TransferStatus, default:TransferStatus.COMPLETED })
+  @Column({ type:'simple-enum', enum:TransferStatus, default:TransferStatus.COMPLETED })
   status!: TransferStatus;            // NEW
   @Column({ type:'text', nullable:true }) notes?: string;   // NEW
   

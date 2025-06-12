@@ -18,7 +18,7 @@ export class SubCategory {
 
   @OneToMany(() => Product, (p) => p.subCategory) products!: Product[];
 
-  @Column({ type: 'enum', enum: ['Active','Inactive'], default: 'Active' })
+  @Column({ type: 'simple-enum', enum: ['Active','Inactive'], default: 'Active' })
   status!: 'Active'|'Inactive';
   
   @Column({ nullable: true }) createdBy?: number;

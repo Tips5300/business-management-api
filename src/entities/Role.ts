@@ -3,20 +3,31 @@
 import {
   Entity, PrimaryGeneratedColumn, Column,
   OneToMany, CreateDateColumn, UpdateDateColumn, DeleteDateColumn,
+  ManyToMany,
+  JoinTable,
 } from 'typeorm';
-import { Employee } from './Employee';
+import { User } from './User';
 import { Permission } from './Permission';
 
 @Entity()
 export class Role {
   @PrimaryGeneratedColumn('uuid') id!: string;
   @Column({ unique: true }) name!: string;
-  @Column({ type:'text', nullable:true }) description?: string;
-  @Column({ default:false }) isSystemRole!: boolean;
+  @Column({ type: 'text', nullable: true }) description?: string;
+  @Column({ default: false }) isSystemRole!: boolean;
 
-  @OneToMany(()=>Employee,(e)=>e.role) employees!: Employee[];
-  @OneToMany(()=>Permission,(p)=>p.role) permissions!: Permission[];
-  
+  @OneToMany(() => User, (user) => user.role)
+  users!: User[];
+
+  // Many-to-many to Permission, with join table
+  @ManyToMany(() => Permission, (permission) => permission.roles, { eager: true })
+  @JoinTable({
+    name: 'role_permissions',
+    joinColumn: { name: 'roleId', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'permissionId', referencedColumnName: 'id' },
+  })
+  permissions!: Permission[];
+
   @Column({ nullable: true }) createdBy?: number;
   @Column({ nullable: true }) updatedBy?: number;
 

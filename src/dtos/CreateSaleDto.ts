@@ -7,14 +7,22 @@ import {
   IsNumberString,
   IsEnum,
   IsArray,
+  ValidateNested,
 } from 'class-validator';
 import { SaleStatus } from '../entities/Sale';
+import { Type } from 'class-transformer';
+import { CreateSaleProductDto } from './CreateSaleProductDto';
 
 export class CreateSaleDto {
   @IsDateString() saleDate!: string;
   @IsOptional() @IsUUID() customer?: string;
   @IsOptional() @IsUUID() store?: string;
   @IsOptional() @IsUUID() employee?: string;
+    @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CreateSaleProductDto)
+  items?: CreateSaleProductDto[];
   @IsNumberString() subTotal!: string;
   @IsOptional() @IsNumberString() discount?: string;
   @IsOptional() @IsNumberString() taxAmount?: string;
@@ -23,7 +31,7 @@ export class CreateSaleDto {
   @IsNumberString() dueAmount!: string;
   @IsUUID()
   @IsOptional()
-  paymentMethod?: string;
+  paymentMethod?: number;
   @IsOptional() @IsString() invoiceNumber?: string;
   @IsOptional()
   @IsString({ each: true })

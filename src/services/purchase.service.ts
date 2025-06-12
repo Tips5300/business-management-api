@@ -19,7 +19,7 @@ export class PurchaseService {
 
     async create(dto: CreatePurchaseDto, currentUserId?: number): Promise<Purchase> {
         const qr: QueryRunner = AppDataSource.createQueryRunner();
-        await qr.connect(); 
+        await qr.connect();
         await qr.startTransaction();
 
         try {
@@ -65,8 +65,9 @@ export class PurchaseService {
                     // Get or create batch
                     let batch: Batch | undefined;
                     if (item.batch) {
-                        batch = await qr.manager.findOne(Batch, { where: { id: item.batch } });
-                        if (!batch) throw new BadRequestError('Invalid batch');
+                        const found = await qr.manager.findOne(Batch, { where: { id: item.batch } });
+                        if (!found) throw new BadRequestError('Invalid batch');
+                        batch = found;
                     }
 
                     // Create PurchaseProduct
@@ -84,8 +85,8 @@ export class PurchaseService {
                         .createQueryBuilder(Stock, 's')
                         .setLock('pessimistic_write')
                         .where('s.productId = :productId', { productId: product.id })
-                        .andWhere(batch ? 's.batchId = :batchId' : 's.batchId IS NULL', 
-                                 batch ? { batchId: batch.id } : {})
+                        .andWhere(batch ? 's.batchId = :batchId' : 's.batchId IS NULL',
+                            batch ? { batchId: batch.id } : {})
                         .getOne();
 
                     if (stock) {
@@ -99,7 +100,7 @@ export class PurchaseService {
                         stock.unitCost = item.unitCost;
                         stock.createdBy = currentUserId;
                     }
-                    
+
                     const savedStock = await qr.manager.save(Stock, stock);
                     pp.stock = savedStock;
                     await qr.manager.save(PurchaseProduct, pp);
@@ -126,7 +127,7 @@ export class PurchaseService {
 
     async update(id: string, dto: UpdatePurchaseDto, currentUserId?: number): Promise<Purchase> {
         const qr = AppDataSource.createQueryRunner();
-        await qr.connect(); 
+        await qr.connect();
         await qr.startTransaction();
 
         try {
@@ -194,8 +195,9 @@ export class PurchaseService {
 
                     let batch: Batch | undefined;
                     if (item.batch) {
-                        batch = await qr.manager.findOne(Batch, { where: { id: item.batch } });
-                        if (!batch) throw new BadRequestError('Invalid batch');
+                        const found = await qr.manager.findOne(Batch, { where: { id: item.batch } });
+                        if (!found) throw new BadRequestError('Invalid batch');
+                        batch = found; // now `found` is Batch, not null
                     }
 
                     const pp = new PurchaseProduct();
@@ -211,8 +213,8 @@ export class PurchaseService {
                         .createQueryBuilder(Stock, 's')
                         .setLock('pessimistic_write')
                         .where('s.productId = :productId', { productId: product.id })
-                        .andWhere(batch ? 's.batchId = :batchId' : 's.batchId IS NULL', 
-                                 batch ? { batchId: batch.id } : {})
+                        .andWhere(batch ? 's.batchId = :batchId' : 's.batchId IS NULL',
+                            batch ? { batchId: batch.id } : {})
                         .getOne();
 
                     if (stock) {
@@ -226,7 +228,7 @@ export class PurchaseService {
                         stock.unitCost = item.unitCost;
                         stock.createdBy = currentUserId;
                     }
-                    
+
                     const savedStock = await qr.manager.save(Stock, stock);
                     pp.stock = savedStock;
                     await qr.manager.save(PurchaseProduct, pp);
@@ -253,12 +255,12 @@ export class PurchaseService {
 
     async softDelete(id: string): Promise<{ deleted: boolean }> {
         const qr = AppDataSource.createQueryRunner();
-        await qr.connect(); 
+        await qr.connect();
         await qr.startTransaction();
-        
+
         try {
             const purchase = await qr.manager.findOne(Purchase, {
-                where: { id }, 
+                where: { id },
                 relations: ['items', 'items.stock']
             });
             if (!purchase) throw new NotFoundError('Purchase not found');
@@ -294,7 +296,7 @@ export class PurchaseService {
         const qr = AppDataSource.createQueryRunner();
         await qr.connect();
         await qr.startTransaction();
-        
+
         try {
             const purchase = await qr.manager.findOne(Purchase, {
                 where: { id },
@@ -321,7 +323,7 @@ export class PurchaseService {
                 }
             }
 
-            await qr.manager.recover(PurchaseProduct, purchase.items.map((i) => i.id));
+            await qr.manager.recover(PurchaseProduct, purchase.items.map((i) => ({ id: i.id })));
             await qr.manager.recover(Purchase, purchase);
 
             await qr.commitTransaction();
@@ -336,13 +338,13 @@ export class PurchaseService {
 
     async hardDelete(id: string): Promise<{ deleted: boolean }> {
         const qr = AppDataSource.createQueryRunner();
-        await qr.connect(); 
+        await qr.connect();
         await qr.startTransaction();
-        
+
         try {
             const purchase = await qr.manager.findOne(Purchase, {
-                where: { id }, 
-                withDeleted: true, 
+                where: { id },
+                withDeleted: true,
                 relations: ['items', 'items.stock']
             });
             if (!purchase) throw new NotFoundError('Purchase not found');
@@ -365,7 +367,7 @@ export class PurchaseService {
                 await qr.manager.delete(PurchaseProduct, it.id);
             }
             await qr.manager.delete(Purchase, id);
-            
+
             await qr.commitTransaction();
             return { deleted: true };
         } catch (err) {

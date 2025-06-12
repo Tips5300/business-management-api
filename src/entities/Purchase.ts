@@ -40,7 +40,7 @@ export class Purchase {
   @Column('text', { array: true, nullable: true })
   receiptOrAny?: string[];
 
-  @Column({ type: 'enum', enum: PurchaseStatus, default: PurchaseStatus.PENDING })
+  @Column({ type: 'simple-enum', enum: PurchaseStatus, default: PurchaseStatus.PENDING })
   status!: PurchaseStatus;
 
   @Column({ type: 'text', nullable: true }) notes?: string;  // NEW

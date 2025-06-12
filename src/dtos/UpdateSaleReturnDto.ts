@@ -1,16 +1,3 @@
-import { IsOptional, IsDateString, IsUUID, IsNumber } from 'class-validator';
+import { CreateSaleReturnDto } from './CreateSaleReturnDto';
 
-export class UpdateSaleReturnDto {
-  @IsOptional()
-  @IsDateString()
-  returnDate?: string;
-
-  @IsOptional()
-  @IsUUID()
-  sale?: string;
-
-  @IsOptional()
-  @IsNumber()
-  totalReturnAmount?: number;
-}
-
+export class UpdateSaleReturnDto extends CreateSaleReturnDto {}

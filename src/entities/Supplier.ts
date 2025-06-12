@@ -27,11 +27,11 @@ export class Supplier {
   @Column({ nullable: true }) website?: string;
   @Column({ nullable: true }) contactPerson?: string;
   @Column({ nullable: true }) taxId?: string;
-  @Column({ type: 'enum', enum: SupplierType, default: SupplierType.Distributor })
+  @Column({ type: 'simple-enum', enum: SupplierType, default: SupplierType.Distributor })
   supplierType!: SupplierType;
   @OneToMany(() => Purchase, (p) => p.supplier) purchases!: Purchase[];
 
-  @Column({ type: 'enum', enum: ['Active', 'Inactive'], default: 'Active' })
+  @Column({ type: 'simple-enum', enum: ['Active', 'Inactive'], default: 'Active' })
   status!: 'Active' | 'Inactive';
 
   @Column({ nullable: true }) createdBy?: number;

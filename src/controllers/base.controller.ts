@@ -1,8 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
 import { BaseService } from '../services/base.service';
 import { AuthRequest } from '../middlewares/auth.middleware';
+import { ObjectLiteral } from 'typeorm';
 
-export class BaseController<T> {
+export class BaseController<T extends ObjectLiteral> {
   protected service: BaseService<T>;
 
   constructor(service: BaseService<T>) {

@@ -44,7 +44,6 @@ Object.entries(entitiesMap).forEach(([entityKey, config]) => {
     entityName: entityKey,
     createDtoClass: createDto,
     updateDtoClass: updateDto,
-    journalConfig: config.journalConfig,
   });
   const controller = new BaseController<any>(service);
 

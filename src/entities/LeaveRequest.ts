@@ -14,7 +14,7 @@ export class LeaveRequest {
   @ManyToOne(()=>Employee,(e)=>e.leaveRequests,{nullable:false}) employee!: Employee;
   @Column({ type:'date' }) startDate!: string;
   @Column({ type:'date' }) endDate!: string;
-  @Column({ type:'enum', enum:LeaveStatus, default:LeaveStatus.PENDING }) status!: LeaveStatus;
+  @Column({ type:'simple-enum', enum:LeaveStatus, default:LeaveStatus.PENDING }) status!: LeaveStatus;
   @Column({ type:'text', nullable:true }) reason?: string;
   @Column({ type:'text', nullable:true }) managerComments?: string;
   @Column({ default:false }) isHalfDay!: boolean;

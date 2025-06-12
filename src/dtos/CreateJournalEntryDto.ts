@@ -9,10 +9,10 @@ import {
 
 export class CreateJournalEntryDto {
   @IsDateString() date!: string;
-  @IsString()     refType!: string;
-  @IsUUID()       refId!: string;
-  @IsUUID()       debitAccountId!: string;
-  @IsUUID()       creditAccountId!: string;
+  @IsOptional() @IsString()     refType?: string;
+  @IsOptional() @IsUUID()       refId?: string;
+  @IsOptional() @IsUUID()       debitAccountId?: string;
+  @IsOptional() @IsUUID()       creditAccountId?: string;
   @IsNumber()     amount!: number;
   @IsOptional() @IsString() description?: string;
   @IsOptional() @IsString() transactionReference?: string;

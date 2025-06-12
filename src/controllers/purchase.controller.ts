@@ -23,11 +23,17 @@ export class PurchaseController {
     private create = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const dto = plainToClass(CreatePurchaseDto, req.body);
-            dto['items'] = (req.body.items || []).map((i: any) =>
-                plainToClass(CreatePurchaseProductDto, i)
-            );
+            if (req.body.items) {
+                dto.items = (req.body.items as any[]).map(i =>
+                    plainToClass(CreatePurchaseProductDto, i)
+                );
+            }
             await validateOrReject(dto);
-            for (const it of dto['items']) await validateOrReject(it);
+            if (dto.items) {
+                for (const it of dto.items) {
+                    await validateOrReject(it);
+                }
+            }
 
             const userId = (req as any).user?.userId;
             const purchase = await this.svc.create(dto, userId);
@@ -67,10 +73,12 @@ export class PurchaseController {
         try {
             const dto = plainToClass(UpdatePurchaseDto, req.body);
             if (req.body.items) {
-                dto['items'] = req.body.items.map((i: any) =>
+                dto.items = (req.body.items as any[]).map(i =>
                     plainToClass(CreatePurchaseProductDto, i)
                 );
-                for (const it of dto['items']) await validateOrReject(it);
+                for (const it of dto.items) {
+                    await validateOrReject(it);
+                }
             }
             await validateOrReject(dto);
 

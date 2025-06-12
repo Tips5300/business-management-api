@@ -30,5 +30,5 @@ export class CreatePurchaseReturnDto {
 
   @IsUUID()
   @IsOptional()
-  paymentMethod?: string;
+  paymentMethod?: number;
 }

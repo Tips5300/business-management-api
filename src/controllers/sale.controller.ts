@@ -24,10 +24,17 @@ export class SaleController {
         try {
             // allow nested items
             const dto = plainToClass(CreateSaleDto, req.body);
-            dto['items'] = (req.body.items || []).map((i: any) =>
-                plainToClass(CreateSaleProductDto, i));
+            if (req.body.items) {
+                dto.items = (req.body.items as any[]).map(i =>
+                    plainToClass(CreateSaleProductDto, i)
+                );
+            }
             await validateOrReject(dto);
-            for (const it of dto['items']) await validateOrReject(it);
+            if (dto.items) {
+                for (const it of dto.items) {
+                    await validateOrReject(it);
+                }
+            }
 
             const userId = (req as any).user?.userId;
             const sale = await this.svc.create(dto, userId);
@@ -67,9 +74,12 @@ export class SaleController {
         try {
             const dto = plainToClass(UpdateSaleDto, req.body);
             if (req.body.items) {
-                dto['items'] = req.body.items.map((i: any) =>
-                    plainToClass(CreateSaleProductDto, i));
-                for (const it of dto['items']) await validateOrReject(it);
+                dto.items = (req.body.items as any[]).map(i =>
+                    plainToClass(CreateSaleProductDto, i)
+                );
+                for (const it of dto.items) {
+                    await validateOrReject(it);
+                }
             }
             await validateOrReject(dto);
 

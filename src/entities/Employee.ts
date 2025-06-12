@@ -6,7 +6,6 @@ import {
 } from 'typeorm';
 import { Department } from './Department';
 import { Store } from './Store';
-import { Role } from './Role';
 import { Attendance } from './Attendance';
 import { LeaveRequest } from './LeaveRequest';
 
@@ -21,7 +20,6 @@ export class Employee {
 
   @ManyToOne(() => Department, (d) => d.employees, { nullable: true }) department?: Department;
   @ManyToOne(() => Store, (s) => s.employees, { nullable: true }) store?: Store;
-  @ManyToOne(() => Role, { nullable: true }) role?: Role;
 
   @OneToMany(() => Attendance, (a) => a.employee) attendances!: Attendance[];
   @OneToMany(() => LeaveRequest, (l) => l.employee) leaveRequests!: LeaveRequest[];

@@ -151,7 +151,6 @@ import { UpdateTaxGroupDto } from '../dtos/UpdateTaxGroupDto';
 import { TaxRate } from '../entities/TaxRate';
 import { CreateTaxRateDto } from '../dtos/CreateTaxRateDto';
 import { UpdateTaxRateDto } from '../dtos/UpdateTaxRateDto';
-import { IncomeType } from '../entities/IncomeType';
 
 export interface JournalPayload {
   date: string;

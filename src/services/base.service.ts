@@ -13,22 +13,17 @@ export class BaseService<T extends ObjectLiteral> {
   protected entityName: string;
   protected createDtoClass?: any;
   protected updateDtoClass?: any;
-  protected journalConfig?: {
-    getEntryPayload: (arg: any) => JournalPayload;
-  };
 
   constructor(options: {
     entity: any;
     entityName: string;
     createDtoClass?: any;
     updateDtoClass?: any;
-    journalConfig?: { getEntryPayload: (arg: any) => JournalPayload };
   }) {
     this.repo = AppDataSource.getRepository<T>(options.entity);
     this.entityName = options.entityName;
     this.createDtoClass = options.createDtoClass;
     this.updateDtoClass = options.updateDtoClass;
-    this.journalConfig = options.journalConfig;
   }
 
   async create(data: any, currentUserId?: number): Promise<T> {
@@ -40,11 +35,6 @@ export class BaseService<T extends ObjectLiteral> {
       ...(currentUserId ? { createdBy: currentUserId } : {}),
     });
     const saved = await this.repo.save(newRecord as any);
-
-    if (this.journalConfig) {
-      const payload = this.journalConfig.getEntryPayload(saved);
-      await this.createJournalEntry(payload, currentUserId);
-    }
 
     return saved;
   }
@@ -93,50 +83,21 @@ export class BaseService<T extends ObjectLiteral> {
     });
     const saved = await this.repo.save(merged as any);
 
-    if (this.journalConfig) {
-      const payload = this.journalConfig.getEntryPayload(saved);
-      await this.createJournalEntry(payload, currentUserId);
-    }
-
     return saved;
   }
 
   async softDelete(id: string | number, currentUserId?: number): Promise<void> {
     await this.findOne(id);
     await this.repo.softDelete(id as any);
-    if (this.journalConfig) {
-      const payload: JournalPayload = this.journalConfig.getEntryPayload(
-        await this.repo.findOne({ where: { id } as any, withDeleted: true })
-      );
-      await this.createJournalEntry(payload, currentUserId);
-    }
   }
 
   async restore(id: string | number, currentUserId?: number): Promise<void> {
     await this.repo.restore(id as any);
-    if (this.journalConfig) {
-      const payload: JournalPayload = this.journalConfig.getEntryPayload(
-        await this.repo.findOne({ where: { id } as any })
-      );
-      await this.createJournalEntry(payload, currentUserId);
-    }
   }
 
   async hardDelete(id: string | number, currentUserId?: number): Promise<void> {
     await this.findOne(id);
     await this.repo.delete(id as any);
-    if (this.journalConfig) {
-      const payload: JournalPayload = {
-        date: new Date().toISOString().split('T')[0],
-        refType: `${this.entityName.toUpperCase()}_DELETE`,
-        refId: id as string,
-        debitAccountId: '',
-        creditAccountId: '',
-        amount: 0,
-        description: `${this.entityName} ${id} permanently deleted`,
-      };
-      await this.createJournalEntry(payload, currentUserId);
-    }
   }
 
   async export(format: 'json' | 'csv' | 'xlsx', queryParams: any, res: Response) {
@@ -171,11 +132,6 @@ export class BaseService<T extends ObjectLiteral> {
 
         // Now save() returns Promise<T> (not T[])
         const saved: T = await this.repo.save(partial);
-
-        if (this.journalConfig) {
-          const payload = this.journalConfig.getEntryPayload(saved);
-          await this.createJournalEntry(payload, currentUserId);
-        }
 
         results.push({ success: true, record: saved });
       } catch (err: any) {

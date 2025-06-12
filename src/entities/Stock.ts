@@ -38,7 +38,7 @@ export class Stock {
   @OneToMany(() => SaleProduct, (sp) => sp.stock)
   saleProducts!: SaleProduct[];
 
-  @Column({ type: 'enum', enum: ['Active', 'Inactive'], default: 'Active' })
+  @Column({ type: 'simple-enum', enum: ['Active', 'Inactive'], default: 'Active' })
   status!: 'Active' | 'Inactive';
 
   @Column({ type: 'text', nullable: true }) notes?: string;

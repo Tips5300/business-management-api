@@ -75,13 +75,13 @@ export class Product {
   @ManyToOne(() => TaxRate, { nullable: true })
   tax?: TaxRate;
 
-  @Column({ type: 'enum', enum: UnitType })
+  @Column({ type: 'simple-enum', enum: UnitType })
   unitType!: UnitType;
 
   @Column('int', { nullable: true })
   warrantyDuration?: number;
 
-  @Column({ type: 'enum', enum: WarrantyDurationType, nullable: true })
+  @Column({ type: 'simple-enum', enum: WarrantyDurationType, nullable: true })
   warrantyDurationType?: WarrantyDurationType;
 
   @ManyToOne(() => Category, { nullable: true })
@@ -107,7 +107,7 @@ export class Product {
   @OneToMany(() => SaleProduct, (sp) => sp.product)
   saleItems!: SaleProduct[];
 
-  @Column({ type: 'enum', enum: ['Active', 'Inactive'], default: 'Active' })
+  @Column({ type: 'simple-enum', enum: ['Active', 'Inactive'], default: 'Active' })
   status!: 'Active' | 'Inactive';
 
   @Column({ nullable: true })

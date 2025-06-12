@@ -20,6 +20,6 @@ export class CreateSaleReturnDto {
 
   @IsUUID()
   @IsOptional()
-  paymentMethod?: string;
+  paymentMethod?: number;
 }
 

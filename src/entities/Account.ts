@@ -30,7 +30,7 @@ export class Account {
   @Column({ nullable: true, type: 'text' })
   description?: string;
 
-  @Column({ type: 'enum', enum: AccountType })
+  @Column({ type: 'simple-enum', enum: AccountType })
   accountType!: AccountType;
 
   @Column({ type: 'varchar', length: 3 })

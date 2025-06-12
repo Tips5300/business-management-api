@@ -5,6 +5,5 @@ export class CreateStoreDto {
   @IsString() name!: string;
   @IsOptional() @IsString() address?: string;
   @IsOptional() @IsString() phone?: string;
-  @IsOptional() @IsUUID() shop?: string;
-  @IsOptional() @IsUUID() incharge?: string;
+  @IsOptional() @IsString() whatsapp?: string;
 }

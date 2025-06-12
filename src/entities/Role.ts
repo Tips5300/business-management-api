@@ -16,6 +16,9 @@ export class Role {
 
   @OneToMany(()=>Employee,(e)=>e.role) employees!: Employee[];
   @OneToMany(()=>Permission,(p)=>p.role) permissions!: Permission[];
+  
+  @Column({ nullable: true }) createdBy?: number;
+  @Column({ nullable: true }) updatedBy?: number;
 
   @CreateDateColumn() createdAt!: Date;
   @UpdateDateColumn() updatedAt!: Date;

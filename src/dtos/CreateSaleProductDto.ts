@@ -7,4 +7,5 @@ export class CreateSaleProductDto {
   @IsInt() quantity!: number;
   @IsNumber() unitPrice!: number;
   @IsOptional() @IsNumber() totalPrice?: number;
+  @IsUUID() stock!: string;
 }

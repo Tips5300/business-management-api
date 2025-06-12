@@ -12,11 +12,14 @@ export class Permission {
   @Column() module!: string;
   @Column() action!: string;
 
-  @ManyToOne(()=>Role,(r)=>r.permissions,{nullable:false})
-  @JoinColumn({ name:'roleId' })
+  @ManyToOne(() => Role, (r) => r.permissions, { nullable: false })
+  @JoinColumn({ name: 'roleId' })
   role!: Role;
 
-  @Column({ type:'boolean', default:true }) isAllowed!: boolean;
+  @Column({ type: 'boolean', default: true }) isAllowed!: boolean;
+  
+  @Column({ nullable: true }) createdBy?: number;
+  @Column({ nullable: true }) updatedBy?: number;
 
   @CreateDateColumn() createdAt!: Date;
   @UpdateDateColumn() updatedAt!: Date;

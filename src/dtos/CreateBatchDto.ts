@@ -1,16 +1,15 @@
-import { IsUUID, IsDateString, IsInt } from 'class-validator';
+import { IsUUID, IsDateString, IsInt, IsString, IsOptional } from 'class-validator';
 
 export class CreateBatchDto {
-  @IsUUID()
-  product!: string;         // Product ID
+  @IsString()
+  batchNumber!: string;
 
   @IsDateString()
-  manufactureDate!: string;
+  @IsOptional()
+  manufactureDate?: string;
 
   @IsDateString()
-  expiryDate!: string;
-
-  @IsInt()
-  quantity!: number;
+  @IsOptional()
+  expiryDate?: string;
 }
 

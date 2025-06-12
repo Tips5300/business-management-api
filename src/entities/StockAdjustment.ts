@@ -30,6 +30,10 @@ export class StockAdjustment {
 
   @Column({ type:'text', nullable:true }) notes?: string;  // NEW
 
+  
+  @Column({ nullable: true }) createdBy?: number;
+  @Column({ nullable: true }) updatedBy?: number;
+  
   @CreateDateColumn() createdAt!: Date;
   @UpdateDateColumn() updatedAt!: Date;
   @DeleteDateColumn() deletedAt?: Date;

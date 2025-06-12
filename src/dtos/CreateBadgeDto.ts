@@ -2,8 +2,6 @@
 import { IsString, IsInt, IsOptional, IsBoolean } from 'class-validator';
 
 export class CreateBadgeDto {
-  @IsString() code!: string;
-  @IsInt() level!: number;
+  @IsString() name!: string;
   @IsOptional() @IsString() description?: string;
-  @IsOptional() @IsBoolean() isActive?: boolean;
 }

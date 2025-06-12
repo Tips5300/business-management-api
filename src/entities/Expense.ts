@@ -1,33 +1,47 @@
 // src/entities/Expense.ts
-
 import {
-  Entity, PrimaryGeneratedColumn, Column,
-  ManyToOne, CreateDateColumn, UpdateDateColumn, DeleteDateColumn,
+    Entity,
+    PrimaryGeneratedColumn,
+    Column,
+    ManyToOne,
+    CreateDateColumn,
+    UpdateDateColumn,
+    DeleteDateColumn,
 } from 'typeorm';
-import { Account } from './Account';
-
-export enum ExpenseType { OFFICE='Office', TRAVEL='Travel', OTHER='Other' }
-export enum ExpenseStatus { PENDING='Pending', PAID='Paid', CANCELLED='Cancelled' }
+import { ExpenseType } from './ExpenseType';
+import { PaymentMethod } from './PaymentMethod';
+// If you track user ownership, import User:
+// import { User } from './User';
 
 @Entity()
 export class Expense {
-  @PrimaryGeneratedColumn('uuid') id!: string;
-  @Column('decimal',{precision:15,scale:2}) amount!: number;
-  @Column({ type:'text' }) description!: string;
+    @PrimaryGeneratedColumn()
+    id!: number;
 
-  @ManyToOne(() => Account,(a)=>a.debitJournalEntries,{nullable:false})
-  account!: Account;
+    @Column('decimal', { precision: 12, scale: 2 })
+    amount!: number;
 
-  @Column({ type:'enum', enum:ExpenseType, default:ExpenseType.OTHER })
-  expenseType!: ExpenseType;    // NEW
+    @Column({ type: 'date' })
+    date!: string;
 
-  @Column({ type:'date', nullable:true }) expenseDate?: string;
-  @Column({ type:'enum', enum:ExpenseStatus, default:ExpenseStatus.PENDING })
-  status!: ExpenseStatus;       // NEW
+    @Column({ nullable: true })
+    description?: string;
 
-  @Column({ type:'text', nullable:true }) notes?: string; // NEW
+    @ManyToOne(() => ExpenseType, (type) => type.expenses, { eager: true })
+    expenseType!: ExpenseType;
 
-  @CreateDateColumn() createdAt!: Date;
-  @UpdateDateColumn() updatedAt!: Date;
-  @DeleteDateColumn() deletedAt?: Date;
+    @ManyToOne(() => PaymentMethod, (pm) => pm.expenses, { eager: true })
+    paymentMethod!: PaymentMethod;
+
+    @Column({ nullable: true }) createdBy?: number;
+    @Column({ nullable: true }) updatedBy?: number;
+
+    @CreateDateColumn()
+    createdAt!: Date;
+
+    @UpdateDateColumn()
+    updatedAt!: Date;
+
+    @DeleteDateColumn()
+    deletedAt?: Date;
 }

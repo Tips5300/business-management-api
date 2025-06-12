@@ -6,6 +6,7 @@ import {
   IsNumberString,
   IsEnum,
   IsString,
+  IsArray,
 } from 'class-validator';
 import { PurchaseStatus } from '../entities/Purchase';
 
@@ -20,7 +21,12 @@ export class CreatePurchaseDto {
   @IsOptional() @IsNumberString() shippingCharge?: string;
   @IsNumberString() totalAmount!: string;
   @IsNumberString() dueAmount!: string;
+  @IsOptional() @IsUUID() paymentMethod?: string;
   @IsOptional() @IsString() invoiceNumber?: string;
+  @IsOptional()
+  @IsString({ each: true })
+  @IsArray()
+  receiptOrAny?: string[];
   @IsEnum(PurchaseStatus) status!: PurchaseStatus;
   @IsOptional() @IsString() notes?: string;
 }

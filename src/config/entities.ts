@@ -2,12 +2,9 @@
  * For each entity in src/entities/, import:
  *   - the Entity class
  *   - the corresponding CreateXDto and UpdateXDto from src/dtos/
- *
- * Optionally, if an entity requires automatic journal entries, 
- * supply a `journalConfig.getEntryPayload()` function.
  */
 
-import { Account, AccountType } from '../entities/Account';
+import { Account } from '../entities/Account';
 import { CreateAccountDto } from '../dtos/CreateAccountDto';
 import { UpdateAccountDto } from '../dtos/UpdateAccountDto';
 
@@ -22,6 +19,10 @@ import { UpdateBadgeDto } from '../dtos/UpdateBadgeDto';
 import { Batch } from '../entities/Batch';
 import { CreateBatchDto } from '../dtos/CreateBatchDto';
 import { UpdateBatchDto } from '../dtos/UpdateBatchDto';
+
+import { Brand } from '../entities/Brand';
+import { CreateBrandDto } from '../dtos/CreateBrandDto';
+import { UpdateBrandDto } from '../dtos/UpdateBrandDto';
 
 import { Category } from '../entities/Category';
 import { CreateCategoryDto } from '../dtos/CreateCategoryDto';
@@ -43,12 +44,17 @@ import { Expense } from '../entities/Expense';
 import { CreateExpenseDto } from '../dtos/CreateExpenseDto';
 import { UpdateExpenseDto } from '../dtos/UpdateExpenseDto';
 
-import { Incharge } from '../entities/Incharge';
-import { CreateInchargeDto } from '../dtos/CreateInchargeDto';
-import { UpdateInchargeDto } from '../dtos/UpdateInchargeDto';
+import { Income } from '../entities/Income';
+import { CreateIncomeDto } from '../dtos/CreateIncomeDto';
+import { UpdateIncomeDto } from '../dtos/UpdateIncomeDto';
+
+import { IncomeType } from '../entities/IncomeType';
+import { CreateIncomeTypeDto } from '../dtos/CreateIncomeTypeDto';
+import { UpdateIncomeTypeDto } from '../dtos/UpdateIncomeTypeDto';
 
 import { JournalEntry } from '../entities/JournalEntry';
-// (no DTO for JournalEntry; likely internal)
+import { CreateJournalEntryDto } from '../dtos/CreateJournalEntryDto';
+import { UpdateJournalEntryDto } from '../dtos/UpdateJournalEntryDto';
 
 import { LeaveRequest, LeaveStatus } from '../entities/LeaveRequest';
 import { CreateLeaveRequestDto } from '../dtos/CreateLeaveRequestDto';
@@ -57,6 +63,10 @@ import { UpdateLeaveRequestDto } from '../dtos/UpdateLeaveRequestDto';
 import { Note } from '../entities/Note';
 import { CreateNoteDto } from '../dtos/CreateNoteDto';
 import { UpdateNoteDto } from '../dtos/UpdateNoteDto';
+
+import { PaymentMethod } from '../entities/PaymentMethod';
+import { CreatePaymentMethodDto } from '../dtos/CreatePaymentMethodDto';
+import { UpdatePaymentMethodDto } from '../dtos/UpdatePaymentMethodDto';
 
 import { Permission } from '../entities/Permission';
 import { CreatePermissionDto } from '../dtos/CreatePermissionDto';
@@ -77,6 +87,14 @@ import { UpdatePurchaseDto } from '../dtos/UpdatePurchaseDto';
 import { PurchaseProduct } from '../entities/PurchaseProduct';
 import { CreatePurchaseProductDto } from '../dtos/CreatePurchaseProductDto';
 import { UpdatePurchaseProductDto } from '../dtos/UpdatePurchaseProductDto';
+
+import { PurchaseReturn } from '../entities/PurchaseReturn';
+import { CreatePurchaseReturnDto } from '../dtos/CreatePurchaseReturnDto';
+import { UpdatePurchaseReturnDto } from '../dtos/UpdatePurchaseReturnDto';
+
+import { PurchaseReturnProduct } from '../entities/PurchaseReturnProduct';
+import { CreatePurchaseReturnProductDto } from '../dtos/CreatePurchaseReturnProductDto';
+import { UpdatePurchaseReturnProductDto } from '../dtos/UpdatePurchaseReturnProductDto';
 
 import { Role } from '../entities/Role';
 import { CreateRoleDto } from '../dtos/CreateRoleDto';
@@ -126,13 +144,14 @@ import { Supplier } from '../entities/Supplier';
 import { CreateSupplierDto } from '../dtos/CreateSupplierDto';
 import { UpdateSupplierDto } from '../dtos/UpdateSupplierDto';
 
+import { TaxGroup } from '../entities/TaxGroup';
+import { CreateTaxGroupDto } from '../dtos/CreateTaxGroupDto';
+import { UpdateTaxGroupDto } from '../dtos/UpdateTaxGroupDto';
+
 import { TaxRate } from '../entities/TaxRate';
 import { CreateTaxRateDto } from '../dtos/CreateTaxRateDto';
 import { UpdateTaxRateDto } from '../dtos/UpdateTaxRateDto';
-
-import { Transaction, TransactionType } from '../entities/Transaction';
-import { CreateTransactionDto } from '../dtos/CreateTransactionDto';
-import { UpdateTransactionDto } from '../dtos/UpdateTransactionDto';
+import { IncomeType } from '../entities/IncomeType';
 
 export interface JournalPayload {
   date: string;
@@ -144,104 +163,12 @@ export interface JournalPayload {
   description: string;
 }
 
-const expenseJournalConfig = {
-  getEntryPayload: (expense: Expense): JournalPayload => ({
-    date: expense.createdAt.toISOString().split('T')[0],
-    refType: 'EXPENSE',
-    refId: expense.id,
-    debitAccountId: expense.account.id,
-    creditAccountId: 'CASH_ACCOUNT_UUID',
-    amount: Number(expense.amount),
-    description: expense.description,
-  }),
-};
-
-const purchaseJournalConfig = {
-  getEntryPayload: (purchase: Purchase): JournalPayload => ({
-    date: purchase.createdAt.toISOString().split('T')[0],
-    refType: 'PURCHASE',
-    refId: purchase.id,
-    debitAccountId: purchase.inventoryAccountId,
-    creditAccountId: purchase.payableAccountId,
-    amount: Number(purchase.totalAmount),
-    description: `Purchase #${purchase.id}`,
-  }),
-};
-
-const saleJournalConfig = {
-  getEntryPayload: (sale: Sale): JournalPayload => ({
-    date: sale.createdAt.toISOString().split('T')[0],
-    refType: 'SALE',
-    refId: sale.id,
-    debitAccountId: sale.receivableAccountId,
-    creditAccountId: sale.revenueAccountId,
-    amount: Number(sale.totalAmount),
-    description: `Sale #${sale.id}`,
-  }),
-};
-
-const saleReturnJournalConfig = {
-  getEntryPayload: (returnItem: SaleReturn): JournalPayload => ({
-    date: returnItem.createdAt.toISOString().split('T')[0],
-    refType: 'SALE_RETURN',
-    refId: returnItem.id,
-    debitAccountId: returnItem.returnAccountId,
-    creditAccountId: returnItem.receivableAccountId,
-    amount: Number(returnItem.returnAmount),
-    description: `Sale Return #${returnItem.id}`,
-  }),
-};
-
-const transactionJournalConfig = {
-  getEntryPayload: (tx: Transaction): JournalPayload => ({
-    date: tx.date.toISOString().split('T')[0],
-    refType: 'TRANSACTION',
-    refId: tx.id,
-    debitAccountId:
-      tx.type === TransactionType.CREDIT ? tx.accountId : 'OTHER_DEBIT_ACCOUNT_UUID',
-    creditAccountId:
-      tx.type === TransactionType.DEBIT ? tx.accountId : 'OTHER_CREDIT_ACCOUNT_UUID',
-    amount: Number(tx.amount),
-    description: tx.description,
-  }),
-};
-
-const stockAdjustmentJournalConfig = {
-  getEntryPayload: (adj: StockAdjustment): JournalPayload => ({
-    date: adj.createdAt.toISOString().split('T')[0],
-    refType: 'STOCK_ADJUSTMENT',
-    refId: adj.id,
-    debitAccountId: adj.isIncrease
-      ? adj.inventoryAccountId
-      : 'ADJUSTMENT_LOSS_ACCOUNT_UUID',
-    creditAccountId: adj.isIncrease
-      ? 'ADJUSTMENT_GAIN_ACCOUNT_UUID'
-      : adj.inventoryAccountId,
-    amount: Number(adj.adjustedValue),
-    description: `Stock Adjustment #${adj.id}`,
-  }),
-};
-
-const stockTransferJournalConfig = {
-  getEntryPayload: (st: StockTransfer): JournalPayload => ({
-    date: st.createdAt.toISOString().split('T')[0],
-    refType: 'STOCK_TRANSFER',
-    refId: st.id,
-    debitAccountId: st.destinationWarehouseAccountId,
-    creditAccountId: st.sourceWarehouseAccountId,
-    amount: Number(st.transferValue),
-    description: `Transfer #${st.id} from ${st.sourceWarehouseId} to ${st.destinationWarehouseId}`,
-  }),
-};
-
 export const entitiesMap: Record<
   string,
   {
     entity: any;
     createDto: any;
     updateDto: any;
-    journalConfig?: { getEntryPayload: (arg: any) => JournalPayload };
-    // You can add other metadata (e.g. which fields to “search” on)
     searchableFields?: string[];
   }
 > = {
@@ -249,7 +176,6 @@ export const entitiesMap: Record<
     entity: Account,
     createDto: CreateAccountDto,
     updateDto: UpdateAccountDto,
-    journalConfig: undefined, // Account itself doesn’t auto‐create journal entries
     searchableFields: ['name', 'description'],
   },
   attendance: {
@@ -298,20 +224,12 @@ export const entitiesMap: Record<
     entity: Expense,
     createDto: CreateExpenseDto,
     updateDto: UpdateExpenseDto,
-    journalConfig: expenseJournalConfig,
     searchableFields: ['description'],
-  },
-  incharge: {
-    entity: Incharge,
-    createDto: CreateInchargeDto,
-    updateDto: UpdateInchargeDto,
-    searchableFields: ['name', 'email'],
   },
   journalEntry: {
     entity: JournalEntry,
-    // no public create/update – managed internally
-    createDto: undefined,
-    updateDto: undefined,
+    createDto: CreateJournalEntryDto,
+    updateDto: UpdateJournalEntryDto,
     searchableFields: ['refType', 'description', 'transactionReference'],
   },
   leaveRequest: {
@@ -433,11 +351,5 @@ export const entitiesMap: Record<
     createDto: CreateTaxRateDto,
     updateDto: UpdateTaxRateDto,
     searchableFields: ['description'],
-  },
-  transaction: {
-    entity: Transaction,
-    createDto: CreateTransactionDto,
-    updateDto: UpdateTransactionDto,
-    searchableFields: ['description', 'transactionReference'],
   },
 };

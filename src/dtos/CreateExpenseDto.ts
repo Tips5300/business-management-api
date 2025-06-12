@@ -1,20 +1,28 @@
 // src/dtos/CreateExpenseDto.ts
 import {
   IsNumber,
-  IsString,
-  IsUUID,
-  IsOptional,
+  IsPositive,
   IsDateString,
-  IsEnum,
+  IsOptional,
+  IsString,
+  IsInt,
 } from 'class-validator';
-import { ExpenseType, ExpenseStatus } from '../entities/Expense';
 
 export class CreateExpenseDto {
-  @IsNumber() amount!: number;
-  @IsString() description!: string;
-  @IsUUID() account!: string;
-  @IsEnum(ExpenseType) expenseType!: ExpenseType;
-  @IsOptional() @IsDateString() expenseDate?: string;
-  @IsEnum(ExpenseStatus) status!: ExpenseStatus;
-  @IsOptional() @IsString() notes?: string;
+  @IsNumber()
+  @IsPositive()
+  amount!: number;
+
+  @IsDateString()
+  date!: string;
+
+  @IsString()
+  @IsOptional()
+  description?: string;
+
+  @IsInt()
+  expenseType!: number;
+
+  @IsInt()
+  paymentMethod!: number;
 }

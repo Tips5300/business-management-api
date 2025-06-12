@@ -33,17 +33,8 @@ export class Account {
   @Column({ type: 'enum', enum: AccountType })
   accountType!: AccountType;
 
-  @Column({ type: 'decimal', precision: 15, scale: 2, default: 0 })
-  openingBalance!: number;         // NEW
-
-  @Column({ type: 'decimal', precision: 15, scale: 2, default: 0 })
-  balance!: number;
-
-  @Column({ default: true })
-  removable!: boolean;             // NEW: can this account be deleted?
-
-  @Column({ type: 'varchar', length: 3, nullable: true })
-  currency?: string;
+  @Column({ type: 'varchar', length: 3 })
+  currency!: string;
 
   @Column({ default: true })
   isActive!: boolean;

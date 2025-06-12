@@ -1,43 +1,127 @@
 // src/entities/Product.ts
-
 import {
-  Entity, PrimaryGeneratedColumn, Column,
-  ManyToOne, OneToMany, CreateDateColumn, UpdateDateColumn, DeleteDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  ManyToMany,
+  OneToMany,
+  JoinTable,
+  CreateDateColumn,
+  UpdateDateColumn,
+  DeleteDateColumn,
 } from 'typeorm';
 import { Category } from './Category';
 import { SubCategory } from './SubCategory';
 import { Stock } from './Stock';
 import { PurchaseProduct } from './PurchaseProduct';
 import { SaleProduct } from './SaleProduct';
+import { Batch } from './Batch';
+import { Brand } from './Brand';
+import { TaxRate } from './TaxRate';
+
+export enum UnitType {
+  PIECE = 'Piece',
+  KG = 'Kg',
+  LITER = 'Liter',
+  METRE = 'Metre',
+  // add other units as needed
+}
+
+export enum WarrantyDurationType {
+  DAYS = 'Days',
+  MONTHS = 'Months',
+  YEARS = 'Years',
+}
 
 @Entity()
 export class Product {
-  @PrimaryGeneratedColumn('uuid') id!: string;
+  @PrimaryGeneratedColumn('uuid')
+  id!: string;
 
-  @Column({ unique: true, nullable: true }) sku?: string;      // optional
-  @Column()                      name!: string;
-  @Column({ type: 'text', nullable: true }) description?: string;
-  @Column('simple-array', { nullable: true }) images?: string[];// NEW
-  @Column({ unique: true, nullable: true }) barcode?: string;   // optional
+  @Column({ unique: true, nullable: true })
+  sku?: string;
 
-  @Column({ type: 'decimal', default: 0, precision: 15, scale: 2 })
-  costPrice!: number;
-  @Column({ type: 'decimal', default: 0, precision: 15, scale: 2 })
-  retailPrice!: number;               // optional
+  @Column({ unique: true, nullable: true })
+  barcode?: string;
 
-  @ManyToOne(() => Category,   { nullable: true }) category?: Category;
-  @ManyToOne(() => SubCategory,{ nullable: true }) subCategory?: SubCategory;
+  @Column()
+  name!: string;
 
-  @OneToMany(() => Stock,         (s) => s.product) stockEntries!: Stock[];
-  @OneToMany(() => PurchaseProduct,(pp)=> pp.product) purchaseItems!: PurchaseProduct[];
-  @OneToMany(() => SaleProduct,   (sp)=> sp.product) saleItems!: SaleProduct[];
+  @ManyToOne(() => Brand, { nullable: true })
+  brand?: Brand;
 
-  @Column({ default: true }) isActive!: boolean;
-  @Column({ type: 'enum', enum: ['Active','Inactive'], default: 'Active' }) status!: 'Active'|'Inactive';
+  @Column('text', { array: true, nullable: true })
+  images?: string[];
 
-  @Column({ nullable: true }) createdBy?: number;
-  @Column({ nullable: true }) updatedBy?: number;
-  @CreateDateColumn() createdAt!: Date;
-  @UpdateDateColumn() updatedAt!: Date;
-  @DeleteDateColumn() deletedAt?: Date;
+  @Column({ type: 'text', nullable: true })
+  description?: string;
+
+  @Column({ type: 'text', nullable: true })
+  manufacturer?: string;
+
+  @Column('decimal', { precision: 15, scale: 2 })
+  purchasePrice!: number;
+
+  @Column('decimal', { precision: 15, scale: 2 })
+  mrpPrice!: number;
+
+  @Column('decimal', { precision: 15, scale: 2, nullable: true })
+  wholesalePrice?: number;
+
+  @Column('decimal', { precision: 15, scale: 2, nullable: true })
+  dealerPrice?: number;
+
+  @ManyToOne(() => TaxRate, { nullable: true })
+  tax?: TaxRate;
+
+  @Column({ type: 'enum', enum: UnitType })
+  unitType!: UnitType;
+
+  @Column('int', { nullable: true })
+  warrantyDuration?: number;
+
+  @Column({ type: 'enum', enum: WarrantyDurationType, nullable: true })
+  warrantyDurationType?: WarrantyDurationType;
+
+  @ManyToOne(() => Category, { nullable: true })
+  category?: Category;
+
+  @ManyToOne(() => SubCategory, { nullable: true })
+  subCategory?: SubCategory;
+
+  @ManyToMany(() => Batch, (batch) => batch.products)
+  @JoinTable({
+    name: 'product_batches',
+    joinColumn: { name: 'productId', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'batchId', referencedColumnName: 'id' },
+  })
+  batches!: Batch[];
+
+  @OneToMany(() => Stock, (s) => s.product)
+  stockEntries!: Stock[];
+
+  @OneToMany(() => PurchaseProduct, (pp) => pp.product)
+  purchaseItems!: PurchaseProduct[];
+
+  @OneToMany(() => SaleProduct, (sp) => sp.product)
+  saleItems!: SaleProduct[];
+
+  @Column({ type: 'enum', enum: ['Active', 'Inactive'], default: 'Active' })
+  status!: 'Active' | 'Inactive';
+
+  @Column({ nullable: true })
+  createdBy?: number;
+
+  @Column({ nullable: true })
+  updatedBy?: number;
+
+  @CreateDateColumn()
+  createdAt!: Date;
+
+  @UpdateDateColumn()
+  updatedAt!: Date;
+
+  @DeleteDateColumn()
+  deletedAt?: Date;
 }

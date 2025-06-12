@@ -11,8 +11,8 @@ import {
 export class CreateAttendanceDto {
   @IsUUID() employee!: string;
   @IsDateString() date!: string;
-  @IsOptional() @IsString() checkIn?: string;
-  @IsOptional() @IsString() checkOut?: string;
+  @IsString() checkIn!: string;
+  @IsString() checkOut!: string;
   @IsOptional() @IsBoolean() isLate?: boolean;
   @IsOptional() @IsInt() lateByMinutes?: number;
 }

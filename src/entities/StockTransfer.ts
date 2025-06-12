@@ -25,6 +25,9 @@ export class StockTransfer {
   @Column({ type:'enum', enum:TransferStatus, default:TransferStatus.COMPLETED })
   status!: TransferStatus;            // NEW
   @Column({ type:'text', nullable:true }) notes?: string;   // NEW
+  
+  @Column({ nullable: true }) createdBy?: number;
+  @Column({ nullable: true }) updatedBy?: number;
 
   @CreateDateColumn() createdAt!: Date;
   @UpdateDateColumn() updatedAt!: Date;

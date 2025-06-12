@@ -1,19 +1,46 @@
 // src/entities/TaxRate.ts
-
 import {
-  Entity, PrimaryGeneratedColumn, Column,
-  CreateDateColumn, UpdateDateColumn, DeleteDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToMany,
+  CreateDateColumn,
+  UpdateDateColumn,
+  DeleteDateColumn,
+  ManyToMany,
 } from 'typeorm';
+import { Product } from './Product';
+import { TaxGroup } from './TaxGroup';
 
 @Entity()
 export class TaxRate {
-  @PrimaryGeneratedColumn('uuid') id!: string;
-  @Column()                      name!: string;    // NEW
-  @Column('decimal',{precision:5,scale:2}) rate!: number;
-  @Column({ type:'text', nullable:true }) description?: string;
-  @Column({ default:true }) isActive!: boolean;
+  @PrimaryGeneratedColumn('uuid')
+  id!: string;
 
-  @CreateDateColumn() createdAt!: Date;
-  @UpdateDateColumn() updatedAt!: Date;
-  @DeleteDateColumn() deletedAt?: Date;
+  @Column({ unique: true })
+  name!: string;  // e.g. VAT, GST
+
+  @Column('decimal', { precision: 5, scale: 2 })
+  rate!: number;  // percentage rate
+
+  @OneToMany(() => Product, (product) => product.tax)
+  products!: Product[];
+
+  // link to groups
+  @ManyToMany(() => TaxGroup, (group) => group.taxRates)
+  groups!: TaxGroup[];
+
+  @Column({ nullable: true })
+  createdBy?: number;
+  @Column({ nullable: true })
+  updatedBy?: number;
+
+  @CreateDateColumn()
+  createdAt!: Date;
+
+  @UpdateDateColumn()
+  updatedAt!: Date;
+
+  @DeleteDateColumn()
+  deletedAt?: Date;
 }

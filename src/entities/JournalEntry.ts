@@ -41,8 +41,8 @@ export class JournalEntry {
   @Column({ type: 'decimal' })
   amount!: number;
 
-  @Column({ type: 'text', default: '' })
-  description!: string;
+  @Column({ type: 'text', nullable: true })
+  description?: string;
 
   @Column({ nullable: true })
   transactionReference?: string;

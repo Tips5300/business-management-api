@@ -18,6 +18,9 @@ export class LeaveRequest {
   @Column({ type:'text', nullable:true }) reason?: string;
   @Column({ type:'text', nullable:true }) managerComments?: string;
   @Column({ default:false }) isHalfDay!: boolean;
+  
+  @Column({ nullable: true }) createdBy?: number;
+  @Column({ nullable: true }) updatedBy?: number;
 
   @CreateDateColumn() createdAt!: Date;
   @UpdateDateColumn() updatedAt!: Date;

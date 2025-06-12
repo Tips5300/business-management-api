@@ -13,6 +13,9 @@ export class Department {
   @Column({nullable:true}) description?: string;
   @Column({nullable:true}) managerId?: string;
   @OneToMany(() => Employee,(e)=>e.department) employees!: Employee[];
+  
+  @Column({ nullable: true }) createdBy?: number;
+  @Column({ nullable: true }) updatedBy?: number;
 
   @CreateDateColumn() createdAt!: Date;
   @UpdateDateColumn() updatedAt!: Date;

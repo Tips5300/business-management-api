@@ -10,6 +10,7 @@ import {
 } from 'typeorm';
 import { Sale } from './Sale';
 import { SaleReturnProduct } from './SaleReturnProduct';
+import { PaymentMethod } from './PaymentMethod';
 
 @Entity()
 export class SaleReturn {
@@ -27,6 +28,10 @@ export class SaleReturn {
 
   @Column({ type: 'decimal', default: 0 })
   totalReturnAmount!: number;
+
+  @ManyToOne(() => PaymentMethod, (pm) => pm.saleReturns, { eager: true, nullable: true })
+  paymentMethod?: PaymentMethod;
+
 
   @Column({ nullable: true })
   createdBy?: number;

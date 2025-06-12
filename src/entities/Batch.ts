@@ -1,30 +1,36 @@
+// src/entities/Batch.ts
 import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
-  ManyToOne,
+  ManyToMany,
+  OneToMany,
   CreateDateColumn,
   UpdateDateColumn,
   DeleteDateColumn,
 } from 'typeorm';
 import { Product } from './Product';
+import { Stock } from './Stock';
 
 @Entity()
 export class Batch {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @ManyToOne(() => Product, (prod) => prod.batches)
-  product!: Product;
+  @Column()
+  batchNumber!: string;
 
-  @Column({ type: 'date' })
-  manufactureDate!: string;
+  @Column({ type: 'date', nullable: true })
+  manufactureDate?: Date;
 
-  @Column({ type: 'date' })
-  expiryDate!: string;
+  @Column({ type: 'date', nullable: true })
+  expiryDate?: Date;
 
-  @Column({ type: 'int' })
-  quantity!: number;
+  @ManyToMany(() => Product, (product) => product.batches)
+  products!: Product[];
+
+  @OneToMany(() => Stock, (stock) => stock.batch)
+  stockEntries!: Stock[];
 
   @Column({ nullable: true })
   createdBy?: number;
@@ -41,4 +47,3 @@ export class Batch {
   @DeleteDateColumn()
   deletedAt?: Date;
 }
-

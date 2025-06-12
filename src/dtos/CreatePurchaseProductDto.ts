@@ -7,4 +7,5 @@ export class CreatePurchaseProductDto {
   @IsInt() quantity!: number;
   @IsNumber() unitCost!: number;
   @IsOptional() @IsNumber() totalCost?: number;
+  @IsOptional() @IsUUID() batch?: string;
 }

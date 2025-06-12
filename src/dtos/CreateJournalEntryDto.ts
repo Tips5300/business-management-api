@@ -16,6 +16,4 @@ export class CreateJournalEntryDto {
   @IsNumber()     amount!: number;
   @IsOptional() @IsString() description?: string;
   @IsOptional() @IsString() transactionReference?: string;
-  @IsOptional() @IsString() journalCategory?: string;
-  @IsOptional() @IsString() notes?: string;
 }

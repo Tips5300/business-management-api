@@ -16,6 +16,9 @@ export class Category {
 
   @Column({ type: 'enum', enum: ['Active','Inactive'], default: 'Active' })
   status!: 'Active'|'Inactive';
+  
+  @Column({ nullable: true }) createdBy?: number;
+  @Column({ nullable: true }) updatedBy?: number;
 
   @CreateDateColumn() createdAt!: Date;
   @UpdateDateColumn() updatedAt!: Date;

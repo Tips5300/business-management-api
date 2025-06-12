@@ -12,5 +12,8 @@ export class CreateSaleReturnProductDto {
 
   @IsNumber()
   unitPrice!: number;
+
+  @IsNumber()
+  totalPrice!: number;
 }
 

@@ -1,9 +1,6 @@
-import { IsUUID, IsInt, IsNumber } from 'class-validator';
+import { IsUUID, IsInt, IsNumber, IsOptional } from 'class-validator';
 
 export class CreateSaleReturnProductDto {
-  @IsUUID()
-  saleReturn!: string;
-
   @IsUUID()
   product!: string;
 
@@ -15,5 +12,8 @@ export class CreateSaleReturnProductDto {
 
   @IsNumber()
   totalPrice!: number;
-}
 
+  @IsOptional()
+  @IsUUID()
+  stock?: string;
+}

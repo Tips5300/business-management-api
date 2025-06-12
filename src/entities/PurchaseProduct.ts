@@ -3,11 +3,11 @@
 import {
   Entity, PrimaryGeneratedColumn, Column,
   ManyToOne, CreateDateColumn, UpdateDateColumn, DeleteDateColumn,
-  Batch,
 } from 'typeorm';
 import { Purchase } from './Purchase';
 import { Product } from './Product';
 import { Stock } from './Stock';
+import { Batch } from './Batch';
 
 @Entity()
 export class PurchaseProduct {
@@ -19,8 +19,11 @@ export class PurchaseProduct {
   @Column('decimal', { precision: 15, scale: 2 }) unitCost!: number;
   @Column('decimal', { precision: 15, scale: 2, default: 0 }) totalCost!: number;
 
-  @ManyToOne(() => Batch, (b) => b /* no inverse collection needed here */, { eager: true, nullable: false })
-  batch!: Batch;
+  @ManyToOne(() => Batch, (b) => b.stockEntries, { eager: true, nullable: true })
+  batch?: Batch;
+
+  @ManyToOne(() => Stock, (s) => s.saleProducts, { nullable: true })
+  stock?: Stock;
 
   @Column({ nullable: true }) createdBy?: number;
   @Column({ nullable: true }) updatedBy?: number;

@@ -6,10 +6,33 @@ import { BaseController } from '../controllers/base.controller';
 import { validationMiddleware } from '../middlewares/validation.middleware';
 import { authMiddleware } from '../middlewares/auth.middleware';
 
+// Import custom controllers
+import { PurchaseController } from '../controllers/purchase.controller';
+import { SaleController } from '../controllers/sale.controller';
+import { PurchaseReturnController } from '../controllers/purchase-return.controller';
+import { SaleReturnController } from '../controllers/sale-return.controller';
+
 const upload = multer({ storage: multer.memoryStorage() });
 const router = Router();
 
+// Custom routes for complex entities
+const purchaseController = new PurchaseController();
+const saleController = new SaleController();
+const purchaseReturnController = new PurchaseReturnController();
+const saleReturnController = new SaleReturnController();
+
+router.use('/purchase', authMiddleware, purchaseController.router);
+router.use('/sale', authMiddleware, saleController.router);
+router.use('/purchaseReturn', authMiddleware, purchaseReturnController.router);
+router.use('/saleReturn', authMiddleware, saleReturnController.router);
+
+// Generic routes for other entities
 Object.entries(entitiesMap).forEach(([entityKey, config]) => {
+  // Skip entities that have custom controllers
+  if (['purchase', 'sale', 'purchaseReturn', 'saleReturn'].includes(entityKey)) {
+    return;
+  }
+
   const {
     entity,
     createDto,

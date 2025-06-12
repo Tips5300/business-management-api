@@ -9,6 +9,7 @@ import {
 } from 'typeorm';
 import { SaleReturn } from './SaleReturn';
 import { Product } from './Product';
+import { Stock } from './Stock';
 
 @Entity()
 export class SaleReturnProduct {
@@ -30,6 +31,9 @@ export class SaleReturnProduct {
   @Column({ type: 'decimal', default: 0 })
   totalPrice!: number; // quantity * unitPrice
 
+  @ManyToOne(() => Stock, (s) => s.saleProducts, { nullable: true })
+  stock?: Stock;
+
   @Column({ nullable: true })
   createdBy?: number;
 
@@ -45,4 +49,3 @@ export class SaleReturnProduct {
   @DeleteDateColumn()
   deletedAt?: Date;
 }
-

@@ -1,9 +1,10 @@
 import { QueryRunner } from 'typeorm';
-import { AppDataSource } from '../ormconfig';
+import { AppDataSource } from '../config/database';
 import { SaleReturn } from '../entities/SaleReturn';
 import { SaleReturnProduct } from '../entities/SaleReturnProduct';
 import { Sale } from '../entities/Sale';
 import { Stock } from '../entities/Stock';
+import { Product } from '../entities/Product';
 import { PaymentMethod } from '../entities/PaymentMethod';
 import { CreateSaleReturnDto } from '../dtos/CreateSaleReturnDto';
 import { CreateSaleReturnProductDto } from '../dtos/CreateSaleReturnProductDto';
@@ -11,11 +12,13 @@ import { UpdateSaleReturnDto } from '../dtos/UpdateSaleReturnDto';
 import { BadRequestError, NotFoundError } from '../utils/errors';
 
 export class SaleReturnService {
-    private repo = AppDataSource.getRepository(SaleReturn);
+    public repo = AppDataSource.getRepository(SaleReturn);
 
     async create(dto: CreateSaleReturnDto, userId?: number): Promise<SaleReturn> {
         const qr: QueryRunner = AppDataSource.createQueryRunner();
-        await qr.connect(); await qr.startTransaction();
+        await qr.connect(); 
+        await qr.startTransaction();
+        
         try {
             // 1. Validate sale
             const sale = await qr.manager.findOne(Sale, {
@@ -24,39 +27,63 @@ export class SaleReturnService {
             });
             if (!sale) throw new BadRequestError('Invalid sale');
 
-            // 2. Instantiate
+            // 2. Create sale return
             const sr = new SaleReturn();
             sr.returnDate = dto.returnDate;
             sr.totalReturnAmount = dto.totalReturnAmount ?? 0;
             sr.sale = sale;
-            sr.paymentMethod = dto.paymentMethod
-                ? await qr.manager.findOneOrFail(PaymentMethod, dto.paymentMethod)
-                : undefined;
+            
+            if (dto.paymentMethod) {
+                sr.paymentMethod = await qr.manager.findOneOrFail(PaymentMethod, { where: { id: dto.paymentMethod } });
+            }
             sr.createdBy = userId;
 
             const saved = await qr.manager.save(SaleReturn, sr);
 
-            // 3. Process items (increase stock)
+            // 3. Process items (increase stock back)
             for (const item of dto.items as CreateSaleReturnProductDto[]) {
-                const stock = await qr.manager
-                    .createQueryBuilder(Stock, 's')
-                    .setLock('pessimistic_write')
-                    .where('s.id = :id', { id: item.stock })
-                    .leftJoinAndSelect('s.product', 'product')
-                    .getOne();
-                if (!stock) throw new BadRequestError('Invalid stock');
-                if (stock.product.id !== item.product)
-                    throw new BadRequestError('stock/product mismatch');
+                // Find product
+                const product = await qr.manager.findOne(Product, { where: { id: item.product } });
+                if (!product) throw new BadRequestError('Invalid product');
 
-                stock.quantity += item.quantity;
-                await qr.manager.save(Stock, stock);
+                // Find or create stock entry
+                let stock: Stock | null = null;
+                if (item.stock) {
+                    stock = await qr.manager
+                        .createQueryBuilder(Stock, 's')
+                        .setLock('pessimistic_write')
+                        .where('s.id = :id', { id: item.stock })
+                        .getOne();
+                } else {
+                    // Find any stock for this product
+                    stock = await qr.manager
+                        .createQueryBuilder(Stock, 's')
+                        .setLock('pessimistic_write')
+                        .where('s.productId = :productId', { productId: item.product })
+                        .getOne();
+                }
 
+                if (!stock) {
+                    // Create new stock entry
+                    stock = new Stock();
+                    stock.product = product;
+                    stock.quantity = item.quantity;
+                    stock.unitCost = item.unitPrice;
+                    stock.createdBy = userId;
+                    stock = await qr.manager.save(Stock, stock);
+                } else {
+                    stock.quantity += item.quantity;
+                    await qr.manager.save(Stock, stock);
+                }
+
+                // Create return product entry
                 const rp = new SaleReturnProduct();
                 rp.saleReturn = saved;
-                rp.product = stock.product;
+                rp.product = product;
                 rp.quantity = item.quantity;
                 rp.unitPrice = item.unitPrice;
                 rp.totalPrice = item.totalPrice ?? item.quantity * item.unitPrice;
+                rp.stock = stock;
                 rp.createdBy = userId;
                 await qr.manager.save(SaleReturnProduct, rp);
             }
@@ -69,7 +96,7 @@ export class SaleReturnService {
                     'sale',
                     'items',
                     'items.product',
-                    'items.saleReturn',
+                    'items.stock',
                     'paymentMethod',
                 ],
             });
@@ -83,69 +110,93 @@ export class SaleReturnService {
 
     async update(id: string, dto: UpdateSaleReturnDto, userId?: number): Promise<SaleReturn> {
         const qr = AppDataSource.createQueryRunner();
-        await qr.connect(); await qr.startTransaction();
+        await qr.connect(); 
+        await qr.startTransaction();
+        
         try {
             const sr = await qr.manager.findOne(SaleReturn, {
                 where: { id },
-                relations: ['items', 'items.saleReturn', 'items.product', 'items.saleReturn', 'sale', 'items.saleReturn', 'items.product', 'items.saleReturn', 'items.product', 'items.saleReturn'], // ensure items & stock loaded?
-                // actually we only need items, but stock relation is on SaleReturnProduct? It's not stored, so fine.
+                relations: ['items', 'items.product', 'items.stock'],
             });
             if (!sr) throw new NotFoundError('SaleReturn not found');
 
-            // reverse old items: decrease stock
+            // Reverse old items: decrease stock
             for (const old of sr.items) {
-                const stock = await qr.manager
-                    .createQueryBuilder(Stock, 's')
-                    .setLock('pessimistic_write')
-                    .where('s.id = :id', { id: old.stock!.id })
-                    .getOne();
-                if (stock) {
-                    stock.quantity -= old.quantity;
-                    await qr.manager.save(Stock, stock);
+                if (old.stock) {
+                    const stock = await qr.manager
+                        .createQueryBuilder(Stock, 's')
+                        .setLock('pessimistic_write')
+                        .where('s.id = :id', { id: old.stock.id })
+                        .getOne();
+                    if (stock) {
+                        stock.quantity = Math.max(0, stock.quantity - old.quantity);
+                        await qr.manager.save(Stock, stock);
+                    }
                 }
                 await qr.manager.remove(SaleReturnProduct, old);
             }
 
-            // update scalar fields
+            // Update scalar fields
             if (dto.returnDate) sr.returnDate = dto.returnDate;
             if (dto.totalReturnAmount !== undefined) sr.totalReturnAmount = dto.totalReturnAmount;
             if (dto.paymentMethod !== undefined) {
                 sr.paymentMethod = dto.paymentMethod
-                    ? await qr.manager.findOneOrFail(PaymentMethod, dto.paymentMethod)
+                    ? await qr.manager.findOneOrFail(PaymentMethod, { where: { id: dto.paymentMethod } })
                     : undefined;
             }
             sr.updatedBy = userId;
 
-            // update sale relation if changed
+            // Update sale relation if changed
             if (dto.sale) {
-                sr.sale = await qr.manager.findOneOrFail(Sale, dto.sale);
+                sr.sale = await qr.manager.findOneOrFail(Sale, { where: { id: dto.sale } });
             }
 
             const saved = await qr.manager.save(SaleReturn, sr);
 
-            // add new items
-            for (const item of dto.items as CreateSaleReturnProductDto[]) {
-                const stock = await qr.manager
-                    .createQueryBuilder(Stock, 's')
-                    .setLock('pessimistic_write')
-                    .where('s.id = :id', { id: item.stock })
-                    .leftJoinAndSelect('s.product', 'product')
-                    .getOne();
-                if (!stock) throw new BadRequestError('Invalid stock');
-                if (stock.product.id !== item.product)
-                    throw new BadRequestError('stock/product mismatch');
+            // Add new items
+            const items = (dto as any).items as CreateSaleReturnProductDto[];
+            if (items && items.length > 0) {
+                for (const item of items) {
+                    const product = await qr.manager.findOne(Product, { where: { id: item.product } });
+                    if (!product) throw new BadRequestError('Invalid product');
 
-                stock.quantity += item.quantity;
-                await qr.manager.save(Stock, stock);
+                    let stock: Stock | null = null;
+                    if (item.stock) {
+                        stock = await qr.manager
+                            .createQueryBuilder(Stock, 's')
+                            .setLock('pessimistic_write')
+                            .where('s.id = :id', { id: item.stock })
+                            .getOne();
+                    } else {
+                        stock = await qr.manager
+                            .createQueryBuilder(Stock, 's')
+                            .setLock('pessimistic_write')
+                            .where('s.productId = :productId', { productId: item.product })
+                            .getOne();
+                    }
 
-                const rp = new SaleReturnProduct();
-                rp.saleReturn = saved;
-                rp.product = stock.product;
-                rp.quantity = item.quantity;
-                rp.unitPrice = item.unitPrice;
-                rp.totalPrice = item.totalPrice ?? item.quantity * item.unitPrice;
-                rp.updatedBy = userId;
-                await qr.manager.save(SaleReturnProduct, rp);
+                    if (!stock) {
+                        stock = new Stock();
+                        stock.product = product;
+                        stock.quantity = item.quantity;
+                        stock.unitCost = item.unitPrice;
+                        stock.createdBy = userId;
+                        stock = await qr.manager.save(Stock, stock);
+                    } else {
+                        stock.quantity += item.quantity;
+                        await qr.manager.save(Stock, stock);
+                    }
+
+                    const rp = new SaleReturnProduct();
+                    rp.saleReturn = saved;
+                    rp.product = product;
+                    rp.quantity = item.quantity;
+                    rp.unitPrice = item.unitPrice;
+                    rp.totalPrice = item.totalPrice ?? item.quantity * item.unitPrice;
+                    rp.stock = stock;
+                    rp.updatedBy = userId;
+                    await qr.manager.save(SaleReturnProduct, rp);
+                }
             }
 
             await qr.commitTransaction();
@@ -156,6 +207,7 @@ export class SaleReturnService {
                     'sale',
                     'items',
                     'items.product',
+                    'items.stock',
                     'paymentMethod',
                 ],
             });
@@ -169,24 +221,28 @@ export class SaleReturnService {
 
     async softDelete(id: string): Promise<{ deleted: boolean }> {
         const qr = AppDataSource.createQueryRunner();
-        await qr.connect(); await qr.startTransaction();
+        await qr.connect(); 
+        await qr.startTransaction();
+        
         try {
             const sr = await qr.manager.findOne(SaleReturn, {
                 where: { id },
-                relations: ['items'],
+                relations: ['items', 'items.stock'],
             });
             if (!sr) throw new NotFoundError('SaleReturn not found');
 
-            // reverse stock for items
+            // Reverse stock for items
             for (const it of sr.items) {
-                const stock = await qr.manager
-                    .createQueryBuilder(Stock, 's')
-                    .setLock('pessimistic_write')
-                    .where('s.id = :id', { id: it.stock!.id })
-                    .getOne();
-                if (stock) {
-                    stock.quantity -= it.quantity;
-                    await qr.manager.save(Stock, stock);
+                if (it.stock) {
+                    const stock = await qr.manager
+                        .createQueryBuilder(Stock, 's')
+                        .setLock('pessimistic_write')
+                        .where('s.id = :id', { id: it.stock.id })
+                        .getOne();
+                    if (stock) {
+                        stock.quantity = Math.max(0, stock.quantity - it.quantity);
+                        await qr.manager.save(Stock, stock);
+                    }
                 }
                 await qr.manager.softRemove(SaleReturnProduct, it);
             }
@@ -202,30 +258,33 @@ export class SaleReturnService {
         }
     }
 
-    /** RESTORE a soft-deleted SaleReturn */
     async restore(id: string): Promise<{ restored: boolean }> {
         const qr = AppDataSource.createQueryRunner();
         await qr.connect();
         await qr.startTransaction();
+        
         try {
             const sr = await qr.manager.findOne(SaleReturn, {
                 where: { id },
                 withDeleted: true,
-                relations: ['items', 'items.saleReturn'],
+                relations: ['items', 'items.stock'],
             });
             if (!sr) throw new NotFoundError('SaleReturn not found');
             if (!sr.deletedAt) throw new BadRequestError('SaleReturn is not deleted');
 
-            // re-apply stock increase
+            // Re-apply stock increase
             for (const it of sr.items) {
-                const st = await qr.manager
-                    .createQueryBuilder(Stock, 's')
-                    .setLock('pessimistic_write')
-                    .where('s.id = :id', { id: it.stock!.id })
-                    .getOne();
-                if (!st) throw new BadRequestError('Missing stock row on restore');
-                st.quantity += it.quantity;
-                await qr.manager.save(Stock, st);
+                if (it.stock) {
+                    const st = await qr.manager
+                        .createQueryBuilder(Stock, 's')
+                        .setLock('pessimistic_write')
+                        .where('s.id = :id', { id: it.stock.id })
+                        .getOne();
+                    if (st) {
+                        st.quantity += it.quantity;
+                        await qr.manager.save(Stock, st);
+                    }
+                }
             }
 
             await qr.manager.recover(SaleReturnProduct, sr.items.map((i) => i.id));
@@ -241,30 +300,33 @@ export class SaleReturnService {
         }
     }
 
-
     async hardDelete(id: string): Promise<{ deleted: boolean }> {
         const qr = AppDataSource.createQueryRunner();
-        await qr.connect(); await qr.startTransaction();
+        await qr.connect(); 
+        await qr.startTransaction();
+        
         try {
             const sr = await qr.manager.findOne(SaleReturn, {
                 where: { id },
                 withDeleted: true,
-                relations: ['items'],
+                relations: ['items', 'items.stock'],
             });
             if (!sr) throw new NotFoundError('SaleReturn not found');
 
-            // if not soft-deleted, reverse now
+            // If not soft-deleted, reverse now
             if (!sr.deletedAt) {
                 for (const it of sr.items) {
-                    const stock = await qr.manager.findOne(Stock, { where: { id: it.stock!.id } });
-                    if (stock) {
-                        stock.quantity -= it.quantity;
-                        await qr.manager.save(Stock, stock);
+                    if (it.stock) {
+                        const stock = await qr.manager.findOne(Stock, { where: { id: it.stock.id } });
+                        if (stock) {
+                            stock.quantity = Math.max(0, stock.quantity - it.quantity);
+                            await qr.manager.save(Stock, stock);
+                        }
                     }
                 }
             }
 
-            // delete items & return
+            // Delete items and return
             for (const it of sr.items) {
                 await qr.manager.delete(SaleReturnProduct, it.id);
             }

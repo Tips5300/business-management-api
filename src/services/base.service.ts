@@ -4,7 +4,7 @@ import { ApiFeatures } from '../utils/api-features';
 import { exportData, PlainObject } from '../utils/export.util';
 import { parseImportFile } from '../utils/import.util';
 import { Response } from 'express';
-import { AppDataSource } from '../ormconfig';
+import { AppDataSource } from '../config/database';
 import { JournalEntry } from '../entities/JournalEntry';
 import { JournalPayload } from '../config/entities';
 

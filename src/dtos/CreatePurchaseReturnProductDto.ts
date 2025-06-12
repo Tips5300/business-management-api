@@ -22,4 +22,8 @@ export class CreatePurchaseReturnProductDto {
 
   @IsNumber()
   totalPrice!: number;
+
+  @IsOptional()
+  @IsUUID()
+  stock?: string;
 }

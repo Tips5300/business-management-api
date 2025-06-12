@@ -1,7 +1,6 @@
 import 'reflect-metadata';
 import express from 'express';
 import dotenv from 'dotenv';
-import { container } from 'tsyringe';
 import { AppDataSource } from './config/database';
 import { logger } from './config/logger';
 import { helmetConfig, corsOptions, generalRateLimit, sanitizeInput, requestLogger } from './middlewares/security.middleware';
@@ -13,11 +12,19 @@ import swaggerJsdoc from 'swagger-jsdoc';
 import cors from 'cors';
 import cron from 'node-cron';
 import { backup } from './scripts/backup';
+import fs from 'fs';
+import path from 'path';
 
 // Load environment variables
 dotenv.config();
 
 const app = express();
+
+// Create logs directory if it doesn't exist
+const logsDir = path.join(__dirname, '..', 'logs');
+if (!fs.existsSync(logsDir)) {
+  fs.mkdirSync(logsDir, { recursive: true });
+}
 
 // Security middleware
 app.use(helmetConfig);
@@ -129,4 +136,4 @@ process.on('SIGINT', async () => {
 
 startServer();
 
-export { app }
+export { app };

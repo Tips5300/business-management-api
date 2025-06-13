@@ -1,3 +1,4 @@
+// src/routes/index.ts
 import { Router } from 'express';
 import multer from 'multer';
 import { entitiesMap } from '../config/entities';
@@ -5,6 +6,7 @@ import { BaseService } from '../services/base.service';
 import { BaseController } from '../controllers/base.controller';
 import { validationMiddleware } from '../middlewares/validation.middleware';
 import { authMiddleware } from '../middlewares/auth.middleware';
+import { requirePermission } from '../middlewares/permission.middleware';
 
 // Import custom controllers
 import { PurchaseController } from '../controllers/purchase.controller';
@@ -28,60 +30,142 @@ router.use('/saleReturn', authMiddleware, saleReturnController.router);
 
 // Generic routes for other entities
 Object.entries(entitiesMap).forEach(([entityKey, config]) => {
-  // Skip entities that have custom controllers
   if (['purchase', 'sale', 'purchaseReturn', 'saleReturn'].includes(entityKey)) {
     return;
   }
 
-  const {
-    entity,
-    createDto,
-    updateDto,
-  } = config;
-
+  const { entity, createDto, updateDto, searchableFields } = config;
   const service = new BaseService<any>({
     entity,
     entityName: entityKey,
     createDtoClass: createDto,
     updateDtoClass: updateDto,
+    searchableFields,
   });
   const controller = new BaseController<any>(service);
-
   const subRouter = Router();
 
+  // CREATE
   if (createDto) {
     subRouter.post(
       '/',
       authMiddleware,
+      requirePermission(entityKey, 'create'),
       validationMiddleware(createDto),
       controller.create
     );
   } else {
-    subRouter.post('/', authMiddleware, controller.create);
+    subRouter.post(
+      '/',
+      authMiddleware,
+      requirePermission(entityKey, 'create'),
+      controller.create
+    );
   }
 
-  subRouter.get('/', authMiddleware, controller.getAll);
-  subRouter.get('/:id', authMiddleware, controller.getOne);
+  // GET ALL
+  subRouter.get(
+    '/',
+    authMiddleware,
+    requirePermission(entityKey, 'read'),
+    controller.getAll
+  );
 
+  // VIEW TRASH
+  subRouter.get(
+    '/trash',
+    authMiddleware,
+    requirePermission(entityKey, 'viewTrash'),
+    controller.getTrash
+  );
+
+  // GET ONE
+  subRouter.get(
+    '/:id',
+    authMiddleware,
+    requirePermission(entityKey, 'read'),
+    controller.getOne
+  );
+
+  // UPDATE
   if (updateDto) {
     subRouter.put(
       '/:id',
       authMiddleware,
+      requirePermission(entityKey, 'update'),
       validationMiddleware(updateDto),
       controller.update
     );
   } else {
-    subRouter.put('/:id', authMiddleware, controller.update);
+    subRouter.put(
+      '/:id',
+      authMiddleware,
+      requirePermission(entityKey, 'update'),
+      controller.update
+    );
   }
 
-  subRouter.patch('/:id/soft-delete', authMiddleware, controller.softDelete);
-  subRouter.patch('/:id/restore', authMiddleware, controller.restore);
-  subRouter.delete('/:id', authMiddleware, controller.hardDelete);
+  // SOFT DELETE
+  subRouter.patch(
+    '/:id/soft-delete',
+    authMiddleware,
+    requirePermission(entityKey, 'delete'),
+    controller.softDelete
+  );
 
-  subRouter.get('/export/:format', authMiddleware, controller.export);
+  // RESTORE
+  subRouter.patch(
+    '/:id/restore',
+    authMiddleware,
+    requirePermission(entityKey, 'restore'),
+    controller.restore
+  );
+
+  // HARD DELETE
+  subRouter.delete(
+    '/:id',
+    authMiddleware,
+    requirePermission(entityKey, 'hardDelete'),
+    controller.hardDelete
+  );
+
+  // BULK SOFT DELETE
+  subRouter.patch(
+    '/bulk-soft-delete',
+    authMiddleware,
+    requirePermission(entityKey, 'delete'),
+    controller.softDeleteMany
+  );
+
+  // BULK RESTORE
+  subRouter.patch(
+    '/bulk-restore',
+    authMiddleware,
+    requirePermission(entityKey, 'restore'),
+    controller.restoreMany
+  );
+
+  // BULK HARD DELETE
+  subRouter.delete(
+    '/bulk',
+    authMiddleware,
+    requirePermission(entityKey, 'hardDelete'),
+    controller.hardDeleteMany
+  );
+
+  // EXPORT
+  subRouter.get(
+    '/export/:format',
+    authMiddleware,
+    requirePermission(entityKey, 'export'),
+    controller.export
+  );
+
+  // IMPORT
   subRouter.post(
     '/import',
     authMiddleware,
+    requirePermission(entityKey, 'import'),
     upload.single('file'),
     controller.import
   );

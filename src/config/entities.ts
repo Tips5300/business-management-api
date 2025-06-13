@@ -152,15 +152,9 @@ import { TaxRate } from '../entities/TaxRate';
 import { CreateTaxRateDto } from '../dtos/CreateTaxRateDto';
 import { UpdateTaxRateDto } from '../dtos/UpdateTaxRateDto';
 
-export interface JournalPayload {
-  date: string;
-  refType: string;
-  refId: string;
-  debitAccountId: string;
-  creditAccountId: string;
-  amount: number;
-  description: string;
-}
+import { User } from "../entities/User";
+import { CreateUserDto } from "../dtos/CreateUserDto";
+import { UpdateUserDto } from "../dtos/UpdateUserDto";
 
 export const entitiesMap: Record<
   string,
@@ -195,6 +189,12 @@ export const entitiesMap: Record<
     updateDto: UpdateBatchDto,
     searchableFields: [],
   },
+  brand: {
+    entity: Brand,
+    createDto: CreateBrandDto,
+    updateDto: UpdateBrandDto,
+    searchableFields: ['name', 'description'],
+  },
   category: {
     entity: Category,
     createDto: CreateCategoryDto,
@@ -225,6 +225,18 @@ export const entitiesMap: Record<
     updateDto: UpdateExpenseDto,
     searchableFields: ['description'],
   },
+  income: {
+    entity: Income,
+    createDto: CreateIncomeDto,
+    updateDto: UpdateIncomeDto,
+    searchableFields: ['description'],
+  },
+  incomeType: {
+    entity: IncomeType,
+    createDto: CreateIncomeTypeDto,
+    updateDto: UpdateIncomeTypeDto,
+    searchableFields: ['name', 'description'],
+  },
   journalEntry: {
     entity: JournalEntry,
     createDto: CreateJournalEntryDto,
@@ -242,6 +254,12 @@ export const entitiesMap: Record<
     createDto: CreateNoteDto,
     updateDto: UpdateNoteDto,
     searchableFields: ['content'],
+  },
+  paymentMethod: {
+    entity: PaymentMethod,
+    createDto: CreatePaymentMethodDto,
+    updateDto: UpdatePaymentMethodDto,
+    searchableFields: ['name', 'description'],
   },
   permission: {
     entity: Permission,
@@ -271,6 +289,18 @@ export const entitiesMap: Record<
     entity: PurchaseProduct,
     createDto: CreatePurchaseProductDto,
     updateDto: UpdatePurchaseProductDto,
+    searchableFields: [],
+  },
+  purchaseReturn: {
+    entity: PurchaseReturn,
+    createDto: CreatePurchaseReturnDto,
+    updateDto: UpdatePurchaseReturnDto,
+    searchableFields: [],
+  },
+  purchaseReturnProduct: {
+    entity: PurchaseReturnProduct,
+    createDto: CreatePurchaseReturnProductDto,
+    updateDto: UpdatePurchaseReturnProductDto,
     searchableFields: [],
   },
   role: {
@@ -345,10 +375,22 @@ export const entitiesMap: Record<
     updateDto: UpdateSupplierDto,
     searchableFields: ['name', 'phone', 'address'],
   },
+  taxGroup: {
+    entity: TaxGroup,
+    createDto: CreateTaxGroupDto,
+    updateDto: UpdateTaxGroupDto,
+    searchableFields: ['name', 'description'],
+  },
   taxRate: {
     entity: TaxRate,
     createDto: CreateTaxRateDto,
     updateDto: UpdateTaxRateDto,
     searchableFields: ['description'],
+  },
+  user: {
+    entity: User,
+    createDto: CreateUserDto,
+    updateDto: UpdateUserDto,
+    searchableFields: ['name', 'email'],
   },
 };

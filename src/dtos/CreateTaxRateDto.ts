@@ -1,5 +1,5 @@
 // src/dtos/CreateTaxRateDto.ts
-import { IsString, IsNumber } from 'class-validator';
+import { IsString, IsNumber, IsOptional } from 'class-validator';
 
 export class CreateTaxRateDto {
   @IsString()
@@ -7,4 +7,8 @@ export class CreateTaxRateDto {
 
   @IsNumber()
   rate!: number;
+
+  @IsOptional()
+  @IsString()
+  description?: string;
 }

@@ -1,16 +1,12 @@
 import { Router, Request, Response } from 'express';
-import jwt from 'jsonwebtoken';
-import bcrypt from 'bcryptjs';
+import { UserService } from '../services/user.service';
+import { LoginDto } from '../dtos/LoginDto';
+import { CreateUserDto } from '../dtos/CreateUserDto';
+import { validateOrReject } from 'class-validator';
+import { plainToClass } from 'class-transformer';
 
 const router = Router();
-
-// Mock user for demonstration
-const mockUser = {
-  id: 1,
-  email: 'admin@example.com',
-  password: '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
-  roles: ['admin']
-};
+const userService = new UserService();
 
 /**
  * @swagger
@@ -23,12 +19,7 @@ const mockUser = {
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             properties:
- *               email:
- *                 type: string
- *               password:
- *                 type: string
+ *             $ref: '#/components/schemas/LoginDto'
  *     responses:
  *       200:
  *         description: Login successful
@@ -37,40 +28,48 @@ const mockUser = {
  */
 router.post('/login', async (req: Request, res: Response) => {
   try {
-    const { email, password } = req.body;
-
-    if (!email || !password) {
-      return res.status(400).json({ error: 'Email and password are required' });
+    const dto = plainToClass(LoginDto, req.body);
+    await validateOrReject(dto);
+    const { token, user } = await userService.login(dto);
+    res.json({ token, user });
+  } catch (err: any) {
+    if (err.status) {
+      return res.status(err.status).json({ error: err.message });
     }
+    console.error('Login error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
 
-    // Check if user exists (mock check)
-    if (email !== mockUser.email) {
-      return res.status(401).json({ error: 'Invalid credentials' });
+/**
+ * @swagger
+ * /api/auth/register:
+ *   post:
+ *     summary: Register new user
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/CreateUserDto'
+ *     responses:
+ *       201:
+ *         description: User created successfully
+ *       400:
+ *         description: Validation error
+ */
+router.post('/register', async (req: Request, res: Response) => {
+  try {
+    const dto = plainToClass(CreateUserDto, req.body);
+    await validateOrReject(dto);
+    const user = await userService.createUser(dto);
+    res.status(201).json({ user });
+  } catch (err: any) {
+    if (err.status) {
+      return res.status(err.status).json({ error: err.message });
     }
-
-    // Check password
-    const isValidPassword = await bcrypt.compare(password, mockUser.password);
-    if (!isValidPassword) {
-      return res.status(401).json({ error: 'Invalid credentials' });
-    }
-
-    // Generate JWT token
-    const token = jwt.sign(
-      { userId: mockUser.id, roles: mockUser.roles },
-      process.env.JWT_SECRET!,
-      { expiresIn: '24h' }
-    );
-
-    res.json({
-      token,
-      user: {
-        id: mockUser.id,
-        email: mockUser.email,
-        roles: mockUser.roles
-      }
-    });
-  } catch (error) {
-    console.error('Login error:', error);
+    console.error('Registration error:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

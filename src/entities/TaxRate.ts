@@ -23,6 +23,9 @@ export class TaxRate {
   @Column('decimal', { precision: 5, scale: 2 })
   rate!: number;  // percentage rate
 
+  @Column({ nullable: true })
+  description?: string;
+
   @OneToMany(() => Product, (product) => product.tax)
   products!: Product[];
 

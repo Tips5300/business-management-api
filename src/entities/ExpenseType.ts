@@ -9,7 +9,6 @@ import {
     DeleteDateColumn,
 } from 'typeorm';
 import { Expense } from './Expense';
-import { PaymentMethod } from './PaymentMethod';
 
 @Entity()
 export class ExpenseType {

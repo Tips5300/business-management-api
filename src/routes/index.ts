@@ -13,6 +13,7 @@ import { PurchaseController } from '../controllers/purchase.controller';
 import { SaleController } from '../controllers/sale.controller';
 import { PurchaseReturnController } from '../controllers/purchase-return.controller';
 import { SaleReturnController } from '../controllers/sale-return.controller';
+import { UserController } from '../controllers/user.controller';
 
 const upload = multer({ storage: multer.memoryStorage() });
 const router = Router();
@@ -22,15 +23,17 @@ const purchaseController = new PurchaseController();
 const saleController = new SaleController();
 const purchaseReturnController = new PurchaseReturnController();
 const saleReturnController = new SaleReturnController();
+const userController = new UserController();
 
 router.use('/purchase', authMiddleware, purchaseController.router);
 router.use('/sale', authMiddleware, saleController.router);
 router.use('/purchaseReturn', authMiddleware, purchaseReturnController.router);
 router.use('/saleReturn', authMiddleware, saleReturnController.router);
+router.use('/user', authMiddleware, userController.router);
 
 // Generic routes for other entities
 Object.entries(entitiesMap).forEach(([entityKey, config]) => {
-  if (['purchase', 'sale', 'purchaseReturn', 'saleReturn'].includes(entityKey)) {
+  if (['purchase', 'sale', 'purchaseReturn', 'saleReturn', 'user'].includes(entityKey)) {
     return;
   }
 

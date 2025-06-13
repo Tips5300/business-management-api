@@ -24,9 +24,9 @@ export class Store {
   @Column() name!: string;
   @Column({ type: 'text', nullable: true }) address?: string;
   @Column({ nullable: true }) phone?: string;
-  @Column({ nullable: true }) email?: string;
+  @Column({ nullable: true }) whatsapp?: string;
 
-  @Column({ type: 'simple-enum', enum: StoreType })
+  @Column({ type: 'simple-enum', enum: StoreType, default: StoreType.RETAIL })
   type!: StoreType;
 
   @OneToMany(() => Stock, (stock) => stock.store, { cascade: true })

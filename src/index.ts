@@ -12,6 +12,7 @@ import swaggerJsdoc from 'swagger-jsdoc';
 import cors from 'cors';
 import cron from 'node-cron';
 import { backup } from './scripts/backup';
+import { seedDatabase } from './scripts/seed';
 import fs from 'fs';
 import path from 'path';
 
@@ -101,12 +102,16 @@ async function startServer() {
     await AppDataSource.initialize();
     logger.info('Database connected successfully');
 
+    // Seed database with default data
+    await seedDatabase();
+
     const PORT = process.env.PORT || 4000;
     app.listen(PORT, () => {
       logger.info(`Server listening on port ${PORT}`);
       logger.info(`API Documentation available at http://localhost:${PORT}/api-docs`);
       console.log(`Server listening on port ${PORT}`);
       console.log(`API Documentation: http://localhost:${PORT}/api-docs`);
+      console.log(`Default admin login: admin@example.com / password123`);
     });
 
     // Schedule daily backups at 2 AM

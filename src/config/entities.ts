@@ -44,6 +44,10 @@ import { Expense } from '../entities/Expense';
 import { CreateExpenseDto } from '../dtos/CreateExpenseDto';
 import { UpdateExpenseDto } from '../dtos/UpdateExpenseDto';
 
+import { ExpenseType } from '../entities/ExpenseType';
+import { CreateExpenseTypeDto } from '../dtos/CreateExpenseTypeDto';
+import { UpdateExpenseTypeDto } from '../dtos/UpdateExpenseTypeDto';
+
 import { Income } from '../entities/Income';
 import { CreateIncomeDto } from '../dtos/CreateIncomeDto';
 import { UpdateIncomeDto } from '../dtos/UpdateIncomeDto';
@@ -181,13 +185,13 @@ export const entitiesMap: Record<
     entity: Badge,
     createDto: CreateBadgeDto,
     updateDto: UpdateBadgeDto,
-    searchableFields: ['code', 'description'],
+    searchableFields: ['name', 'description'],
   },
   batch: {
     entity: Batch,
     createDto: CreateBatchDto,
     updateDto: UpdateBatchDto,
-    searchableFields: [],
+    searchableFields: ['batchNumber'],
   },
   brand: {
     entity: Brand,
@@ -225,6 +229,12 @@ export const entitiesMap: Record<
     updateDto: UpdateExpenseDto,
     searchableFields: ['description'],
   },
+  expenseType: {
+    entity: ExpenseType,
+    createDto: CreateExpenseTypeDto,
+    updateDto: UpdateExpenseTypeDto,
+    searchableFields: ['name', 'description'],
+  },
   income: {
     entity: Income,
     createDto: CreateIncomeDto,
@@ -253,7 +263,7 @@ export const entitiesMap: Record<
     entity: Note,
     createDto: CreateNoteDto,
     updateDto: UpdateNoteDto,
-    searchableFields: ['content'],
+    searchableFields: ['title', 'content'],
   },
   paymentMethod: {
     entity: PaymentMethod,
@@ -277,13 +287,13 @@ export const entitiesMap: Record<
     entity: Product,
     createDto: CreateProductDto,
     updateDto: UpdateProductDto,
-    searchableFields: ['name', 'description'],
+    searchableFields: ['name', 'description', 'sku', 'barcode'],
   },
   purchase: {
     entity: Purchase,
     createDto: CreatePurchaseDto,
     updateDto: UpdatePurchaseDto,
-    searchableFields: [],
+    searchableFields: ['invoiceNumber', 'status'],
   },
   purchaseProduct: {
     entity: PurchaseProduct,
@@ -295,7 +305,7 @@ export const entitiesMap: Record<
     entity: PurchaseReturn,
     createDto: CreatePurchaseReturnDto,
     updateDto: UpdatePurchaseReturnDto,
-    searchableFields: [],
+    searchableFields: ['returnDate'],
   },
   purchaseReturnProduct: {
     entity: PurchaseReturnProduct,
@@ -313,7 +323,7 @@ export const entitiesMap: Record<
     entity: Sale,
     createDto: CreateSaleDto,
     updateDto: UpdateSaleDto,
-    searchableFields: [],
+    searchableFields: ['invoiceNumber', 'status'],
   },
   saleProduct: {
     entity: SaleProduct,
@@ -325,7 +335,7 @@ export const entitiesMap: Record<
     entity: SaleReturn,
     createDto: CreateSaleReturnDto,
     updateDto: UpdateSaleReturnDto,
-    searchableFields: [],
+    searchableFields: ['returnDate'],
   },
   saleReturnProduct: {
     entity: SaleReturnProduct,
@@ -385,12 +395,12 @@ export const entitiesMap: Record<
     entity: TaxRate,
     createDto: CreateTaxRateDto,
     updateDto: UpdateTaxRateDto,
-    searchableFields: ['description'],
+    searchableFields: ['name', 'description'],
   },
   user: {
     entity: User,
     createDto: CreateUserDto,
     updateDto: UpdateUserDto,
-    searchableFields: ['name', 'email'],
+    searchableFields: ['firstName', 'lastName', 'email'],
   },
 };

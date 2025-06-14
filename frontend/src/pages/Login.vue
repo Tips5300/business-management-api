@@ -1,26 +1,53 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { authAPI } from '../services/api'
 
 const router = useRouter()
-const email = ref('')
-const password = ref('')
+const email = ref('admin@example.com')
+const password = ref('password123')
 const rememberMe = ref(false)
 const isLoading = ref(false)
+const errorMessage = ref('')
 
-const login = () => {
+const login = async () => {
+  if (!email.value || !password.value) {
+    errorMessage.value = 'Please enter both email and password'
+    return
+  }
+
   isLoading.value = true
+  errorMessage.value = ''
   
-  // Simulate API call
-  setTimeout(() => {
-    isLoading.value = false
+  try {
+    const response = await authAPI.login(email.value, password.value)
+    console.log('Login successful:', response)
     router.push('/')
-  }, 1000)
+  } catch (error: any) {
+    console.error('Login error:', error)
+    errorMessage.value = error.message || 'Login failed. Please try again.'
+  } finally {
+    isLoading.value = false
+  }
 }
 </script>
 
 <template>
   <form @submit.prevent="login" class="space-y-6">
+    <!-- Error Message -->
+    <div v-if="errorMessage" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+      {{ errorMessage }}
+    </div>
+
+    <!-- Demo Credentials Info -->
+    <div class="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded">
+      <p class="text-sm">
+        <strong>Demo Credentials:</strong><br>
+        Email: admin@example.com<br>
+        Password: password123
+      </p>
+    </div>
+    
     <div>
       <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
         Email

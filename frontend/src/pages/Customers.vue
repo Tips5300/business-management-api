@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import SearchInput from '../components/pos/SearchInput.vue'
 
 // Mock data for customers

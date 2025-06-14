@@ -2,6 +2,7 @@ import { createApp } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import './style.css'
 import App from './App.vue'
+import { authGuard } from './router/guards'
 
 // Import pages
 import Dashboard from './pages/Dashboard.vue'
@@ -14,6 +15,7 @@ import Settings from './pages/Settings.vue'
 import Login from './pages/Login.vue'
 import Register from './pages/Register.vue'
 import ForgotPassword from './pages/ForgotPassword.vue'
+import More from './pages/More.vue'
 
 // Import Flowbite
 import 'flowbite'
@@ -27,6 +29,7 @@ const routes = [
   { path: '/staff', component: Staff },
   { path: '/invoices', component: Invoices },
   { path: '/settings', component: Settings },
+  { path: '/more', component: More },
   { path: '/login', component: Login },
   { path: '/register', component: Register },
   { path: '/forgot-password', component: ForgotPassword },
@@ -36,6 +39,9 @@ const router = createRouter({
   history: createWebHistory(),
   routes,
 })
+
+// Add auth guard
+router.beforeEach(authGuard)
 
 createApp(App)
   .use(router)

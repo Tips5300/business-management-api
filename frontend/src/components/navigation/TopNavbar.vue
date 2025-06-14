@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { authAPI } from '../../services/api'
 
 defineProps<{
   title: string
@@ -9,6 +11,7 @@ defineEmits<{
   (e: 'toggleSidebar'): void
 }>()
 
+const router = useRouter()
 const isDarkMode = ref(false)
 const isProfileOpen = ref(false)
 const isNotificationsOpen = ref(false)
@@ -26,6 +29,11 @@ const toggleProfileMenu = () => {
 const toggleNotifications = () => {
   isNotificationsOpen.value = !isNotificationsOpen.value
   if (isNotificationsOpen.value) isProfileOpen.value = false
+}
+
+const logout = () => {
+  authAPI.logout()
+  router.push('/login')
 }
 </script>
 
@@ -161,13 +169,16 @@ const toggleNotifications = () => {
             <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700">
               Profile
             </a>
-            <a href="/settings" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700">
+            <router-link to="/settings" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700">
               Settings
-            </a>
+            </router-link>
             <div class="border-t border-gray-200 dark:border-gray-700"></div>
-            <a href="/login" class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100 dark:text-red-400 dark:hover:bg-gray-700">
+            <button 
+              @click="logout"
+              class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 dark:text-red-400 dark:hover:bg-gray-700"
+            >
               Logout
-            </a>
+            </button>
           </div>
         </div>
       </div>
